@@ -1,416 +1,228 @@
 from flask import Flask, render_template_string, request
-import requests
 import base64
 import html
 from urllib.parse import quote_plus
 
 app = Flask(__name__)
 
-# ---------------------------
-# ASHPLEX SVG fallback cover
-# ---------------------------
-def svg_cover(title="ASHPLEX", subtitle="90s Hindi"):
-    safe_title = html.escape(str(title))[:22]
-    safe_subtitle = html.escape(str(subtitle))[:32]
+def svg_cover(title="ASHPLEX", subtitle="Your Music"):
+    title = html.escape(str(title))[:24]
+    subtitle = html.escape(str(subtitle))[:32]
     svg = f"""
-    <svg xmlns="http://www.w3.org/2000/svg" width="600" height="600">
+    <svg xmlns="http://www.w3.org/2000/svg" width="700" height="700">
       <defs>
         <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stop-color="#1db954"/>
-          <stop offset="55%" stop-color="#101217"/>
-          <stop offset="100%" stop-color="#07130b"/>
+          <stop offset="0%" stop-color="#ff2d55"/>
+          <stop offset="45%" stop-color="#18213a"/>
+          <stop offset="100%" stop-color="#08080b"/>
         </linearGradient>
-        <radialGradient id="r" cx="25%" cy="25%" r="70%">
+        <radialGradient id="r" cx="30%" cy="20%" r="80%">
           <stop offset="0%" stop-color="#ffffff" stop-opacity="0.28"/>
           <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
         </radialGradient>
       </defs>
-      <rect width="600" height="600" rx="55" fill="url(#g)"/>
-      <rect width="600" height="600" rx="55" fill="url(#r)"/>
-      <circle cx="475" cy="95" r="75" fill="#ffffff" opacity="0.10"/>
-      <circle cx="110" cy="500" r="95" fill="#ffffff" opacity="0.08"/>
-      <text x="48" y="95" fill="#ffffff" font-size="34" font-family="Arial" font-weight="700">ASHPLEX</text>
-      <text x="48" y="300" fill="#ffffff" font-size="44" font-family="Arial" font-weight="800">{safe_title}</text>
-      <text x="48" y="355" fill="#d8f8df" font-size="25" font-family="Arial">{safe_subtitle}</text>
-      <text x="48" y="520" fill="#ffffff" opacity="0.75" font-size="22" font-family="Arial">Your Mood. Your Music. Your World.</text>
+      <rect width="700" height="700" rx="70" fill="url(#g)"/>
+      <rect width="700" height="700" rx="70" fill="url(#r)"/>
+      <circle cx="565" cy="115" r="88" fill="#ffffff" opacity="0.10"/>
+      <circle cx="120" cy="585" r="115" fill="#ffffff" opacity="0.08"/>
+      <text x="58" y="100" fill="#ffffff" font-size="38" font-family="Arial" font-weight="700">ASHPLEX</text>
+      <text x="58" y="350" fill="#ffffff" font-size="52" font-family="Arial" font-weight="800">{title}</text>
+      <text x="58" y="410" fill="#e8e8f3" font-size="28" font-family="Arial">{subtitle}</text>
+      <text x="58" y="610" fill="#ffffff" opacity="0.72" font-size="24" font-family="Arial">Your Mood. Your Music. Your World.</text>
     </svg>
     """
-    b64 = base64.b64encode(svg.encode("utf-8")).decode("utf-8")
-    return "data:image/svg+xml;base64," + b64
+    return "data:image/svg+xml;base64," + base64.b64encode(svg.encode()).decode()
 
-def pick_image(song, fallback_title="ASHPLEX", fallback_artist="90s Hindi"):
-    imgs = song.get("image") or []
-    if isinstance(imgs, list):
-        for item in reversed(imgs):
-            if isinstance(item, dict) and item.get("url"):
-                return item["url"]
-    return svg_cover(fallback_title, fallback_artist)
+SONGS = [
+    {"title":"Pehla Nasha", "artist":"Udit Narayan", "mood":"romantic", "cover":svg_cover("Pehla Nasha","Udit Narayan")},
+    {"title":"Tujhe Dekha To", "artist":"Kumar Sanu", "mood":"romantic", "cover":svg_cover("Tujhe Dekha To","Kumar Sanu")},
+    {"title":"Dheere Dheere Se", "artist":"Kumar Sanu, Anuradha Paudwal", "mood":"relax", "cover":svg_cover("Dheere Dheere","Kumar Sanu")},
+    {"title":"Chura Ke Dil Mera", "artist":"Kumar Sanu, Alka Yagnik", "mood":"happy", "cover":svg_cover("Chura Ke Dil","Alka Yagnik")},
+    {"title":"Main Koi Aisa Geet Gaoon", "artist":"Abhijeet", "mood":"happy", "cover":svg_cover("Aisa Geet","Abhijeet")},
+    {"title":"Sandese Aate Hain", "artist":"Sonu Nigam", "mood":"sad", "cover":svg_cover("Sandese","Sonu Nigam")},
+    {"title":"Bahut Pyar Karte Hain", "artist":"Anuradha Paudwal", "mood":"sad", "cover":svg_cover("Bahut Pyar","Anuradha")},
+    {"title":"Pardesi Pardesi", "artist":"Udit Narayan, Alka Yagnik", "mood":"sad", "cover":svg_cover("Pardesi","Udit • Alka")},
+    {"title":"Tip Tip Barsa Pani", "artist":"Udit Narayan, Alka Yagnik", "mood":"party", "cover":svg_cover("Tip Tip","Party Mix")},
+    {"title":"Ole Ole", "artist":"Abhijeet", "mood":"party", "cover":svg_cover("Ole Ole","Abhijeet")},
+    {"title":"Aankhon Ki Gustakhiyan", "artist":"Kumar Sanu, Kavita Krishnamurthy", "mood":"romantic", "cover":svg_cover("Gustakhiyan","Kavita • Sanu")},
+    {"title":"Saanson Ki Zarurat Hai", "artist":"Kumar Sanu", "mood":"relax", "cover":svg_cover("Saanson Ki","Kumar Sanu")},
+]
 
-def pick_audio(song):
-    """
-    saavn.dev often returns downloadUrl list. We pick the best available.
-    If not present, return empty string and UI will show no-audio message.
-    """
-    urls = song.get("downloadUrl") or song.get("download_url") or []
-    if isinstance(urls, list):
-        for item in reversed(urls):
-            if isinstance(item, dict) and item.get("url"):
-                return item["url"]
-    if isinstance(urls, str):
-        return urls
-    return ""
+PLAYLISTS = [
+    {"name":"90s Hindi Classics","desc":"Evergreen Bollywood hits","query":"classic","cover":svg_cover("90s Hindi","Classics")},
+    {"name":"Romantic 90s","desc":"Love songs collection","query":"romantic","cover":svg_cover("Romantic","90s Collection")},
+    {"name":"Sad Classics","desc":"Emotional melodies","query":"sad","cover":svg_cover("Sad","Classics")},
+    {"name":"Party Retro","desc":"Dance & energy","query":"party","cover":svg_cover("Party","Retro Mix")},
+    {"name":"Relax Mood","desc":"Soft listening","query":"relax","cover":svg_cover("Relax","Soft 90s")},
+    {"name":"Happy Vibes","desc":"Feel-good tracks","query":"happy","cover":svg_cover("Happy","Vibes")},
+]
 
-# ---------------------------
-# JioSaavn API
-# ---------------------------
-def fetch_saavn(query="90s hindi songs", limit=20):
-    try:
-        url = "https://saavn.dev/api/search/songs"
-        params = {"query": query, "limit": limit}
-        res = requests.get(url, params=params, timeout=12)
-        data = res.json()
-        results = data.get("data", {}).get("results") or []
-        songs = []
-
-        for s in results[:limit]:
-            name = s.get("name") or s.get("title") or "Unknown Song"
-            artist = s.get("primaryArtists") or s.get("primaryArtistsName") or "Unknown Artist"
-            image = pick_image(s, name, artist)
-            audio = pick_audio(s)
-
-            songs.append({
-                "name": name,
-                "artist": artist,
-                "image": image,
-                "audio": audio,
-                "youtube": "https://www.youtube.com/results?search_query=" + quote_plus(name + " " + artist)
-            })
-
-        if songs:
-            return songs
-    except Exception as e:
-        print("JioSaavn API error:", e)
-    return []
-
-def fallback_songs():
-    data = [
-        ("Pehla Nasha", "Udit Narayan"),
-        ("Tujhe Dekha To", "Kumar Sanu"),
-        ("Dheere Dheere Se", "Kumar Sanu, Anuradha Paudwal"),
-        ("Mera Dil Bhi Kitna Pagal Hai", "Kumar Sanu, Alka Yagnik"),
-        ("Ek Ladki Ko Dekha", "Kumar Sanu"),
-        ("Pardesi Pardesi", "Udit Narayan, Alka Yagnik"),
-        ("Aankhon Ki Gustakhiyan", "Kumar Sanu, Kavita Krishnamurthy"),
-        ("Sandese Aate Hain", "Sonu Nigam"),
-        ("Main Koi Aisa Geet Gaoon", "Abhijeet"),
-        ("Chura Ke Dil Mera", "Kumar Sanu, Alka Yagnik"),
-        ("Tip Tip Barsa Pani", "Udit Narayan, Alka Yagnik"),
-        ("Bahut Pyar Karte Hain", "Anuradha Paudwal"),
-    ]
-    return [
-        {
-            "name": n,
-            "artist": a,
-            "image": svg_cover(n, a),
-            "audio": "",
-            "youtube": "https://www.youtube.com/results?search_query=" + quote_plus(n + " " + a)
-        }
-        for n, a in data
-    ]
-
-def get_songs(query="90s hindi songs", limit=20):
-    songs = fetch_saavn(query, limit)
-    return songs if songs else fallback_songs()[:limit]
-
-# ---------------------------
-# Mood recommendation
-# ---------------------------
-def mood_query(mood):
+def filter_songs(q="", mood="classic"):
+    q = (q or "").lower().strip()
     mood = (mood or "classic").lower()
-    mapping = {
-        "classic": "90s hindi songs Kumar Sanu Udit Narayan Alka Yagnik",
-        "romantic": "90s hindi romantic songs Kumar Sanu Alka Yagnik",
-        "sad": "90s hindi sad songs Kumar Sanu Sonu Nigam",
-        "happy": "90s hindi happy songs Udit Narayan Abhijeet",
-        "relax": "90s hindi soft songs Anuradha Paudwal Sadhana Sargam",
-        "party": "90s bollywood dance songs Udit Narayan Alka Yagnik",
-        "focus": "old hindi lofi songs 90s",
-    }
-    return mapping.get(mood, mapping["classic"])
-
-def get_playlists():
-    return [
-        {"title": "90s Hindi Classics", "subtitle": "Kumar Sanu • Udit • Alka", "query": "90s hindi songs", "image": svg_cover("90s Hindi", "Classics")},
-        {"title": "Romantic 90s", "subtitle": "Love songs collection", "query": "90s hindi romantic songs", "image": svg_cover("Romantic", "90s Hindi")},
-        {"title": "Kumar Sanu Hits", "subtitle": "Evergreen voice", "query": "Kumar Sanu 90s hindi songs", "image": svg_cover("Kumar Sanu", "Hits")},
-        {"title": "Udit Narayan Mix", "subtitle": "Melody playlist", "query": "Udit Narayan 90s hindi songs", "image": svg_cover("Udit Narayan", "Mix")},
-        {"title": "Alka Yagnik Hits", "subtitle": "Queen of melody", "query": "Alka Yagnik 90s hindi songs", "image": svg_cover("Alka Yagnik", "Hits")},
-        {"title": "Sonu Nigam Classics", "subtitle": "Golden voice", "query": "Sonu Nigam 90s hindi songs", "image": svg_cover("Sonu Nigam", "Classics")},
-    ]
+    data = SONGS
+    if mood != "classic":
+        data = [s for s in data if s["mood"] == mood]
+    if q:
+        data = [s for s in SONGS if q in s["title"].lower() or q in s["artist"].lower()]
+    return data or SONGS
 
 HTML = """
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ASHPLEX</title>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins',sans-serif}
-body{background:#0b0b0f;color:white;overflow-x:hidden}
-.app{display:flex;min-height:100vh}
-.sidebar{width:250px;background:#111217;padding:30px 20px;position:fixed;top:0;left:0;bottom:0;border-right:1px solid rgba(255,255,255,.06)}
-.logo{font-size:34px;font-weight:800;color:#1db954;margin-bottom:42px}
-.menu{display:flex;flex-direction:column;gap:14px}
-.menu a{text-decoration:none;color:#bbb;padding:15px 18px;border-radius:16px;transition:.25s;font-weight:500}
-.menu a:hover,.menu .active{background:#1db954;color:white}
-.main{margin-left:250px;flex:1;padding:30px;padding-bottom:155px}
-.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:28px;gap:18px}
-.search{width:460px}
-.search input{width:100%;padding:18px 22px;border:0;outline:0;background:#1a1c22;border-radius:18px;color:white;font-size:15px}
-.profile{color:#cfd0d5;white-space:nowrap}
-.hero{min-height:330px;border-radius:34px;padding:42px;display:flex;justify-content:space-between;align-items:center;background:linear-gradient(135deg,#1db954,#121212 75%);overflow:hidden;margin-bottom:38px;position:relative}
-.hero:after{content:"";position:absolute;right:-80px;top:-90px;width:360px;height:360px;background:rgba(255,255,255,.12);filter:blur(70px);border-radius:50%}
-.hero h1{font-size:66px;line-height:1;margin-bottom:18px;position:relative;z-index:2}
-.hero p{font-size:18px;color:#e6e6e6;max-width:640px;line-height:1.6;position:relative;z-index:2}
-.hero-buttons{margin-top:28px;display:flex;gap:15px;position:relative;z-index:2}
-.btn{padding:15px 28px;border:0;border-radius:40px;font-size:15px;font-weight:700;cursor:pointer;text-decoration:none;display:inline-block}
-.play{background:white;color:black}.explore{background:rgba(255,255,255,.16);color:white}
-.hero img{width:270px;height:270px;object-fit:cover;border-radius:30px;box-shadow:0 24px 60px rgba(0,0,0,.5);position:relative;z-index:2}
-.section{margin-top:34px}
-.section-title{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
-.section-title h2{font-size:32px}.section-title span{color:#aaa}
-.mood-row{display:flex;gap:12px;overflow-x:auto;padding-bottom:8px}
-.mood-row a{flex:0 0 auto;text-decoration:none;color:white;background:#181a20;border:1px solid rgba(255,255,255,.07);padding:12px 18px;border-radius:999px;font-weight:700}
-.mood-row a.active{background:#1db954}
-.playlist-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:18px}
-.playlist-card{background:linear-gradient(135deg,#1b1d24,#111217);border-radius:24px;padding:14px;text-decoration:none;color:white;transition:.25s;border:1px solid rgba(255,255,255,.06)}
-.playlist-card:hover{transform:translateY(-6px);background:#22252e}
-.playlist-card img{width:100%;aspect-ratio:1/1;border-radius:18px;object-fit:cover;margin-bottom:12px}
-.playlist-card h3{font-size:17px}.playlist-card p{font-size:13px;color:#aaa}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:22px}
-.card{background:#181a20;padding:15px;border-radius:22px;transition:.25s;position:relative}
-.card:hover{transform:translateY(-8px);background:#22252e}
-.card img{width:100%;aspect-ratio:1/1;border-radius:18px;object-fit:cover;margin-bottom:14px;background:#111}
-.card h3{font-size:17px;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.card p{font-size:13px;color:#aaa;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.play-btn{position:absolute;right:20px;bottom:92px;width:54px;height:54px;border-radius:50%;background:#1db954;color:white;border:0;display:flex;align-items:center;justify-content:center;font-size:22px;opacity:0;transform:translateY(12px);transition:.25s;cursor:pointer}
-.card:hover .play-btn{opacity:1;transform:translateY(0)}
-.actions{display:flex;gap:10px;margin-top:14px}.actions button{border:0;background:#262932;color:white;padding:10px 14px;border-radius:12px;cursor:pointer}
-.player{position:fixed;bottom:0;left:250px;right:0;height:105px;background:#111217;border-top:1px solid rgba(255,255,255,.06);display:grid;grid-template-columns:330px 1fr 220px;align-items:center;padding:0 25px;z-index:99}
-.now{display:flex;align-items:center;gap:15px}.now img{width:72px;height:72px;border-radius:16px;object-fit:cover;background:#111}
-.song-name{font-size:16px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:210px}.artist{font-size:13px;color:#aaa;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:210px}
-.center{display:flex;flex-direction:column;align-items:center;gap:10px}.controls{display:flex;align-items:center;gap:22px;font-size:22px}
-.control-btn{border:0;background:transparent;color:white;font-size:22px;cursor:pointer}
-.big{width:56px;height:56px;border-radius:50%;background:white;color:black;display:flex;align-items:center;justify-content:center;font-size:24px;border:0;cursor:pointer}
-.bar{width:70%;height:5px;background:#2f3138;border-radius:20px;overflow:hidden;cursor:pointer}.bar div{width:0%;height:100%;background:#1db954}
-.mobile-nav{display:none}
-.ad{margin-top:24px;background:linear-gradient(135deg,#22252e,#15161b);border:1px solid rgba(255,255,255,.06);padding:18px;border-radius:22px;text-align:center;color:#bbb}
-.audio-note{font-size:12px;color:#ffcf70;margin-top:6px}
+*{margin:0;padding:0;box-sizing:border-box;font-family:Poppins,sans-serif}
+:root{--bg:#07070b;--panel:#111118;--card:#171821;--muted:#9b9baa;--pink:#ff2d55;--green:#1db954}
+body{background:radial-gradient(circle at 70% 0%,rgba(255,45,85,.22),transparent 34%),linear-gradient(180deg,#12121a,#050506 58%,#000);color:white;overflow:hidden}
+.app{width:100vw;height:100vh;display:grid;grid-template-columns:260px 1fr;grid-template-rows:1fr 96px}
+.sidebar{background:rgba(17,17,24,.92);border-right:1px solid rgba(255,255,255,.06);padding:26px 18px}
+.logo{font-size:30px;font-weight:900;margin-bottom:34px;color:white;letter-spacing:-1px}.logo span{color:var(--pink)}
+.nav a{display:flex;gap:12px;align-items:center;color:#c9c9d3;text-decoration:none;padding:14px 16px;border-radius:16px;margin-bottom:8px;font-weight:650}
+.nav a.active,.nav a:hover{background:linear-gradient(135deg,var(--pink),#7b2cff);color:white;box-shadow:0 14px 35px rgba(255,45,85,.25)}
+.creator{position:absolute;bottom:24px;color:#ff9aaa;font-size:12px;line-height:1.5}
+.main{padding:26px 34px 125px;overflow-y:auto}
+.top{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px}
+.search{width:min(520px,100%)}.search input{width:100%;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.08);outline:none;color:white;padding:15px 18px;border-radius:18px}
+.profile{color:#ccc;background:rgba(255,255,255,.07);padding:12px 16px;border-radius:999px;font-size:14px}
+.hero{min-height:330px;border-radius:34px;padding:34px;display:grid;grid-template-columns:1fr 290px;gap:30px;align-items:center;background:linear-gradient(135deg,rgba(255,45,85,.55),rgba(29,185,84,.23),rgba(255,255,255,.04));border:1px solid rgba(255,255,255,.10);box-shadow:0 32px 100px rgba(0,0,0,.45);overflow:hidden}
+.eyebrow{color:#ffd8df;text-transform:uppercase;font-size:12px;font-weight:800;letter-spacing:1.4px;margin-bottom:12px}
+.hero h1{font-size:68px;line-height:.96;letter-spacing:-2px;margin-bottom:18px}
+.hero p{color:#ececf3;font-size:17px;line-height:1.65;max-width:720px}
+.hero .btns{display:flex;gap:14px;margin-top:25px}.btn{border:0;border-radius:999px;padding:14px 22px;font-weight:800;text-decoration:none;color:white;cursor:pointer}.primary{background:white;color:#111}.secondary{background:rgba(255,255,255,.14)}
+.hero-cover{width:290px;height:290px;border-radius:34px;object-fit:cover;box-shadow:0 26px 80px rgba(0,0,0,.55)}
+.section{margin-top:34px}.section-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}.section h2{font-size:30px}.section-head span{color:var(--muted)}
+.moods{display:flex;gap:12px;overflow-x:auto;padding-bottom:4px}.moods a{white-space:nowrap;text-decoration:none;color:white;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.08);padding:11px 16px;border-radius:999px;font-weight:700}.moods a.active{background:var(--pink)}
+.playlists{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:18px}.playlist{background:linear-gradient(135deg,rgba(255,255,255,.09),rgba(255,255,255,.03));border:1px solid rgba(255,255,255,.08);border-radius:24px;padding:14px;text-decoration:none;color:white;transition:.25s}.playlist:hover{transform:translateY(-7px)}.playlist img{width:100%;aspect-ratio:1/1;border-radius:19px;object-fit:cover;margin-bottom:12px}.playlist p{color:var(--muted);font-size:13px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(185px,1fr));gap:20px}.card{background:rgba(255,255,255,.065);border:1px solid rgba(255,255,255,.07);border-radius:24px;padding:14px;position:relative;transition:.25s}.card:hover{transform:translateY(-8px);background:rgba(255,255,255,.10)}.card img{width:100%;aspect-ratio:1/1;border-radius:19px;object-fit:cover;margin-bottom:12px}.card h3{font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.card p{color:var(--muted);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.play-float{position:absolute;right:22px;bottom:88px;width:48px;height:48px;border-radius:50%;background:var(--pink);color:white;border:0;font-size:18px;cursor:pointer;opacity:0;transition:.2s}.card:hover .play-float{opacity:1}.actions{display:flex;gap:8px;margin-top:12px}.actions button{background:#242633;border:0;color:white;border-radius:12px;padding:9px 12px;cursor:pointer}
+.player{grid-column:1/3;background:rgba(10,10,14,.92);border-top:1px solid rgba(255,255,255,.08);backdrop-filter:blur(22px);display:grid;grid-template-columns:330px 1fr 240px;align-items:center;padding:0 26px}.now{display:flex;gap:15px;align-items:center}.now img{width:68px;height:68px;border-radius:16px;object-fit:cover}.now h4{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:210px}.now p{color:var(--muted);font-size:12px}.controls{text-align:center}.buttons{display:flex;justify-content:center;align-items:center;gap:22px;margin-bottom:10px}.round{width:54px;height:54px;border-radius:50%;border:0;background:white;color:#111;font-size:22px;font-weight:900;cursor:pointer}.ctrl{background:transparent;border:0;color:white;font-size:20px;cursor:pointer}.bar{height:5px;background:#2d2d35;border-radius:999px;overflow:hidden;width:75%;margin:auto}.fill{height:100%;width:38%;background:var(--pink)}.volume{text-align:right;color:#ccc}
+.mobilebar{display:none}
 @media(max-width:850px){
-.sidebar{display:none}.main{margin-left:0;padding:18px;padding-bottom:190px}.top{display:block}.search{width:100%;margin-bottom:20px}.profile{display:none}
-.hero{height:auto;flex-direction:column;text-align:center;padding:25px}.hero h1{font-size:42px}.hero img{width:100%;max-width:280px;height:auto;margin-top:25px}
-.playlist-row{display:flex;overflow-x:auto;gap:14px;padding-bottom:8px}.playlist-card{min-width:165px}
-.grid{grid-template-columns:1fr}.player{left:10px;right:10px;bottom:82px;height:92px;border-radius:22px;grid-template-columns:1fr auto;padding:12px 16px}
-.center .bar,.right{display:none}.controls{gap:12px;font-size:18px}.control-btn{font-size:18px}.big{width:48px;height:48px}
-.mobile-nav{display:grid;grid-template-columns:repeat(5,1fr);position:fixed;bottom:0;left:0;right:0;height:75px;background:#111217;border-top:1px solid rgba(255,255,255,.06)}
-.mobile-nav a{display:flex;flex-direction:column;justify-content:center;align-items:center;color:white;text-decoration:none;font-size:12px}
-}
+body{overflow:auto}.app{display:block;height:auto;min-height:100vh;padding-bottom:160px}.sidebar{display:none}.main{padding:16px 14px 145px}.top{display:block}.profile{display:none}.search{width:100%;margin-bottom:14px}.hero{display:block;text-align:left;min-height:auto;padding:20px;border-radius:30px}.hero h1{font-size:39px;letter-spacing:-1px}.hero-cover{width:100%;height:auto;aspect-ratio:1/1;margin-top:20px;border-radius:28px}.playlists{display:flex;overflow-x:auto;gap:14px}.playlist{min-width:165px}.grid{grid-template-columns:1fr;gap:12px}.card{display:grid;grid-template-columns:78px 1fr;gap:13px;align-items:center}.card img{margin:0}.play-float{opacity:1;right:14px;bottom:14px;width:38px;height:38px}.player{position:fixed;left:10px;right:10px;bottom:82px;height:78px;grid-template-columns:1fr auto;border-radius:24px;padding:10px 14px;z-index:20}.now img{width:56px;height:56px}.controls .bar,.volume,.ctrl{display:none}.round{width:48px;height:48px}.mobilebar{display:grid;grid-template-columns:repeat(5,1fr);position:fixed;left:0;right:0;bottom:0;height:76px;background:rgba(8,8,10,.96);backdrop-filter:blur(20px);z-index:30}.mobilebar a{text-decoration:none;color:#ddd;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:11px}.mobilebar span{font-size:22px;margin-bottom:3px}}
 </style>
 <script>
-let currentAudio = null;
-
-function playSong(name, artist, image, audio){
-  const audioEl = document.getElementById("ashplexAudio");
-  const playBtn = document.getElementById("mainPlayBtn");
-
-  document.getElementById("playerImage").src = image;
-  document.getElementById("playerTitle").innerText = name;
-  document.getElementById("playerArtist").innerText = artist;
-
-  if(!audio){
-    document.getElementById("audioNote").innerText = "Audio link not available for this track. Try another song.";
-    return;
-  }
-
-  document.getElementById("audioNote").innerText = "";
-  audioEl.src = audio;
-  audioEl.play();
-  playBtn.innerText = "❚❚";
+const songs = {{ songs|tojson }};
+let current = 0;
+function playSong(i){
+  current=i;
+  const s=songs[i];
+  document.getElementById("pimg").src=s.cover;
+  document.getElementById("ptitle").innerText=s.title;
+  document.getElementById("partist").innerText=s.artist;
+  document.getElementById("mainBtn").innerText="Ⅱ";
 }
-
-function togglePlay(){
-  const audioEl = document.getElementById("ashplexAudio");
-  const playBtn = document.getElementById("mainPlayBtn");
-
-  if(!audioEl.src){
-    document.getElementById("audioNote").innerText = "Select a song first.";
-    return;
-  }
-
-  if(audioEl.paused){
-    audioEl.play();
-    playBtn.innerText = "❚❚";
-  }else{
-    audioEl.pause();
-    playBtn.innerText = "▶";
-  }
-}
-
-function seekAudio(e){
-  const audioEl = document.getElementById("ashplexAudio");
-  if(!audioEl.duration) return;
-  const rect = e.currentTarget.getBoundingClientRect();
-  const ratio = (e.clientX - rect.left) / rect.width;
-  audioEl.currentTime = ratio * audioEl.duration;
-}
-
-function updateProgress(){
-  const audioEl = document.getElementById("ashplexAudio");
-  const fill = document.getElementById("progressFill");
-  if(audioEl.duration){
-    fill.style.width = ((audioEl.currentTime / audioEl.duration) * 100) + "%";
-  }
-}
-
-function skip(seconds){
-  const audioEl = document.getElementById("ashplexAudio");
-  if(audioEl.duration){
-    audioEl.currentTime = Math.max(0, Math.min(audioEl.duration, audioEl.currentTime + seconds));
-  }
-}
-
-function shareSong(name){
-  if(navigator.share){
-    navigator.share({title:name, text:"Listen on ASHPLEX", url:window.location.href});
-  }else{
-    alert("Share: " + window.location.href);
-  }
+function shareSong(title){
+  if(navigator.share){navigator.share({title:title,text:"Listen on ASHPLEX",url:location.href});}
+  else alert("Share ASHPLEX: "+location.href);
 }
 </script>
 </head>
 <body>
 <div class="app">
-<div class="sidebar">
-  <div class="logo">ASHPLEX</div>
-  <div class="menu">
-    <a class="active" href="/">🏠 Home</a>
-    <a href="#search">🔍 Search</a>
-    <a href="#moods">🤖 Mood AI</a>
-    <a href="#playlists">🎵 Playlists</a>
-    <a href="#premium">👑 Premium</a>
-    <a href="#rewards">💰 Rewards</a>
-  </div>
-</div>
+  <aside class="sidebar">
+    <div class="logo">ASH<span>PLEX</span></div>
+    <nav class="nav">
+      <a class="active" href="/">🏠 Home</a>
+      <a href="#moods">🤖 Mood AI</a>
+      <a href="#playlists">🎵 Playlists</a>
+      <a href="#songs">❤️ Songs</a>
+      <a href="#premium">👑 Premium</a>
+      <a href="#rewards">💰 Rewards</a>
+    </nav>
+    <div class="creator">Created by<br><b>Ashutosh Pandey</b></div>
+  </aside>
 
-<div class="main">
-  <div class="top" id="search">
-    <form class="search" method="GET">
-      <input name="q" value="{{ query }}" placeholder="Search 90s Hindi Songs...">
-      <input type="hidden" name="mood" value="{{ mood }}">
-    </form>
-    <div class="profile">👑 Premium • Created by Ashutosh Pandey</div>
-  </div>
+  <main class="main">
+    <div class="top">
+      <form class="search"><input name="q" value="{{ q }}" placeholder="Search 90s Hindi songs..."></form>
+      <div class="profile">👑 Premium • ASHPLEX</div>
+    </div>
 
-  <div class="hero">
-    <div>
-      <h1>Your Mood.<br>Your Music.<br>Your World.</h1>
-      <p>AI-powered Hindi music platform with in-app playback, playlist covers, mood suggestions, rewards and premium UI.</p>
-      <div class="hero-buttons">
-        <a class="btn play" href="#trending">▶ Play</a>
-        <a class="btn explore" href="#moods">🤖 Mood AI</a>
-      </div>
-    </div>
-    <img src="{{ songs[0].image }}">
-  </div>
-
-  <div class="section" id="moods">
-    <div class="section-title">
-      <h2>🤖 Mood Suggestions</h2>
-      <span>Music according to your mood</span>
-    </div>
-    <div class="mood-row">
-      <a class="{{ 'active' if mood=='classic' else '' }}" href="/?mood=classic">🎧 Classic</a>
-      <a class="{{ 'active' if mood=='romantic' else '' }}" href="/?mood=romantic">❤️ Romantic</a>
-      <a class="{{ 'active' if mood=='sad' else '' }}" href="/?mood=sad">💔 Sad</a>
-      <a class="{{ 'active' if mood=='happy' else '' }}" href="/?mood=happy">😊 Happy</a>
-      <a class="{{ 'active' if mood=='relax' else '' }}" href="/?mood=relax">🌙 Relax</a>
-      <a class="{{ 'active' if mood=='party' else '' }}" href="/?mood=party">💃 Party</a>
-      <a class="{{ 'active' if mood=='focus' else '' }}" href="/?mood=focus">🎯 Focus</a>
-    </div>
-  </div>
-
-  <div class="section" id="playlists">
-    <div class="section-title">
-      <h2>🎵 Full Playlists</h2>
-      <span>Click playlist to load songs</span>
-    </div>
-    <div class="playlist-row">
-      {% for p in playlists %}
-      <a class="playlist-card" href="/?q={{ p.query }}">
-        <img src="{{ p.image }}">
-        <h3>{{ p.title }}</h3>
-        <p>{{ p.subtitle }}</p>
-      </a>
-      {% endfor %}
-    </div>
-  </div>
-
-  <div class="section" id="trending">
-    <div class="section-title">
-      <h2>🔥 Recommended Songs</h2>
-      <span>{{ songs|length }} tracks</span>
-    </div>
-    <div class="grid">
-      {% for song in songs %}
-      <div class="card">
-        <img src="{{ song.image }}">
-        <button class="play-btn" onclick='playSong({{ song.name|tojson }}, {{ song.artist|tojson }}, {{ song.image|tojson }}, {{ song.audio|tojson }})'>▶</button>
-        <h3>{{ song.name }}</h3>
-        <p>{{ song.artist }}</p>
-        <div class="actions">
-          <button>❤️</button>
-          <button onclick="shareSong({{ song.name|tojson }})">📤</button>
-          <button>➕</button>
+    <section class="hero">
+      <div>
+        <div class="eyebrow">AI Music Platform</div>
+        <h1>Your Mood.<br>Your Music.<br>Your World.</h1>
+        <p>A real music-app style ASHPLEX dashboard with mood suggestions, playlists, premium UI, like/share, and responsive phone + Mac layout.</p>
+        <div class="btns">
+          <a class="btn primary" href="#songs">▶ Play Now</a>
+          <a class="btn secondary" href="#playlists">🎵 Explore</a>
         </div>
       </div>
-      {% endfor %}
-    </div>
-  </div>
+      <img class="hero-cover" src="{{ songs[0].cover }}">
+    </section>
 
-  <div class="ad" id="premium">📢 Advertisement Banner • Upgrade to Premium for ad-free ASHPLEX</div>
-</div>
+    <section class="section" id="moods">
+      <div class="section-head"><h2>🤖 Mood Suggestions</h2><span>Choose your mood</span></div>
+      <div class="moods">
+        {% for m in moods %}
+        <a class="{{ 'active' if mood==m.id else '' }}" href="/?mood={{m.id}}">{{m.icon}} {{m.name}}</a>
+        {% endfor %}
+      </div>
+    </section>
 
-<div class="player">
-  <div class="now">
-    <img id="playerImage" src="{{ songs[0].image }}">
-    <div>
-      <div id="playerTitle" class="song-name">{{ songs[0].name }}</div>
-      <div id="playerArtist" class="artist">{{ songs[0].artist }}</div>
-      <div id="audioNote" class="audio-note"></div>
+    <section class="section" id="playlists">
+      <div class="section-head"><h2>🎵 Full Playlists</h2><span>Curated sections</span></div>
+      <div class="playlists">
+        {% for p in playlists %}
+        <a class="playlist" href="/?mood={{p.mood}}">
+          <img src="{{p.cover}}">
+          <h3>{{p.name}}</h3>
+          <p>{{p.desc}}</p>
+        </a>
+        {% endfor %}
+      </div>
+    </section>
+
+    <section class="section" id="songs">
+      <div class="section-head"><h2>🔥 Recommended Songs</h2><span>{{ songs|length }} tracks</span></div>
+      <div class="grid">
+        {% for s in songs %}
+        <div class="card">
+          <img src="{{s.cover}}">
+          <button class="play-float" onclick="playSong({{loop.index0}})">▶</button>
+          <div>
+            <h3>{{s.title}}</h3>
+            <p>{{s.artist}}</p>
+            <div class="actions">
+              <button>❤️</button>
+              <button onclick="shareSong('{{s.title}}')">📤</button>
+              <button>➕</button>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </section>
+
+    <div class="section" id="premium">
+      <div class="section-head"><h2>👑 Premium</h2><span>Ad-free future feature</span></div>
+      <div style="background:rgba(255,255,255,.07);border-radius:24px;padding:20px;color:#ddd">Premium users can get ad-free experience, special themes and reward boosters.</div>
     </div>
-  </div>
-  <div class="center">
+  </main>
+
+  <footer class="player">
+    <div class="now">
+      <img id="pimg" src="{{songs[0].cover}}">
+      <div><h4 id="ptitle">{{songs[0].title}}</h4><p id="partist">{{songs[0].artist}}</p></div>
+    </div>
     <div class="controls">
-      <button class="control-btn" onclick="skip(-10)">⏮</button>
-      <button id="mainPlayBtn" class="big" onclick="togglePlay()">▶</button>
-      <button class="control-btn" onclick="skip(10)">⏭</button>
+      <div class="buttons"><button class="ctrl">⏮</button><button id="mainBtn" class="round">▶</button><button class="ctrl">⏭</button></div>
+      <div class="bar"><div class="fill"></div></div>
     </div>
-    <div class="bar" onclick="seekAudio(event)"><div id="progressFill"></div></div>
-  </div>
-  <div class="right">🔊 In-app Audio</div>
-</div>
+    <div class="volume">🔊 Volume</div>
+  </footer>
 
-<audio id="ashplexAudio" ontimeupdate="updateProgress()" onended="document.getElementById('mainPlayBtn').innerText='▶'"></audio>
-
-<div class="mobile-nav">
-  <a href="/">🏠<br>Home</a>
-  <a href="#moods">🤖<br>Mood</a>
-  <a href="#playlists">🎵<br>Playlist</a>
-  <a href="#premium">👑<br>Premium</a>
-  <a href="#trending">➕<br>Create</a>
-</div>
+  <nav class="mobilebar">
+    <a href="/"><span>🏠</span>Home</a>
+    <a href="#moods"><span>🤖</span>Mood</a>
+    <a href="#playlists"><span>🎵</span>Playlist</a>
+    <a href="#premium"><span>👑</span>Premium</a>
+    <a href="#songs"><span>➕</span>Create</a>
+  </nav>
 </div>
 </body>
 </html>
@@ -418,12 +230,26 @@ function shareSong(name){
 
 @app.route("/")
 def home():
-    mood = request.args.get("mood", "classic")
-    q = request.args.get("q")
-    query = q or mood_query(mood)
-    songs = get_songs(query, 24)
-    playlists = get_playlists()
-    return render_template_string(HTML, songs=songs, playlists=playlists, query=query, mood=mood)
+    q = request.args.get("q","")
+    mood = request.args.get("mood","classic")
+    songs = filter_songs(q, mood)
+    moods = [
+        {"id":"classic","name":"Classic","icon":"🎧"},
+        {"id":"romantic","name":"Romantic","icon":"❤️"},
+        {"id":"sad","name":"Sad","icon":"💔"},
+        {"id":"happy","name":"Happy","icon":"😊"},
+        {"id":"relax","name":"Relax","icon":"🌙"},
+        {"id":"party","name":"Party","icon":"💃"},
+    ]
+    playlists = [
+        {"name":"90s Hindi Classics","desc":"Evergreen voices","mood":"classic","cover":svg_cover("90s Hindi","Classics")},
+        {"name":"Romantic 90s","desc":"Love collection","mood":"romantic","cover":svg_cover("Romantic","90s")},
+        {"name":"Sad Classics","desc":"Emotional songs","mood":"sad","cover":svg_cover("Sad","Classics")},
+        {"name":"Happy Vibes","desc":"Feel good tracks","mood":"happy","cover":svg_cover("Happy","Vibes")},
+        {"name":"Relax Mode","desc":"Soft listening","mood":"relax","cover":svg_cover("Relax","Mode")},
+        {"name":"Party Retro","desc":"Dance hits","mood":"party","cover":svg_cover("Party","Retro")},
+    ]
+    return render_template_string(HTML, songs=songs, moods=moods, playlists=playlists, mood=mood, q=q)
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=10000)
