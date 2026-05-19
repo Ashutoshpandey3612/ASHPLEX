@@ -27,40 +27,34 @@ font-family:'Poppins',sans-serif;
 
 body{
 
-background:
-radial-gradient(circle at top left,#4d1220 0%,transparent 30%),
-radial-gradient(circle at top right,#102040 0%,transparent 30%),
-#050505;
-
+background:#0b0b0f;
 color:white;
 overflow:hidden;
-height:100vh;
 }
 
-/* ========================= */
-/* APP LAYOUT */
-/* ========================= */
+/* ============================ */
+/* APP */
+/* ============================ */
 
 .app{
 
-display:grid;
-grid-template-columns:260px 1fr;
+display:flex;
 height:100vh;
 }
 
-/* ========================= */
+/* ============================ */
 /* SIDEBAR */
-/* ========================= */
+/* ============================ */
 
 .sidebar{
 
-background:rgba(255,255,255,0.04);
+width:250px;
 
-backdrop-filter:blur(20px);
-
-border-right:1px solid rgba(255,255,255,0.05);
+background:#111217;
 
 padding:30px 20px;
+
+border-right:1px solid rgba(255,255,255,0.05);
 }
 
 .logo{
@@ -68,16 +62,9 @@ padding:30px 20px;
 font-size:34px;
 font-weight:800;
 
+color:#1db954;
+
 margin-bottom:40px;
-
-display:flex;
-align-items:center;
-gap:12px;
-}
-
-.logo span{
-
-color:#ff004c;
 }
 
 .menu{
@@ -90,46 +77,50 @@ gap:14px;
 .menu a{
 
 text-decoration:none;
-color:#ccc;
 
-padding:16px;
+color:#bbb;
+
+padding:15px 18px;
+
 border-radius:16px;
 
 transition:0.3s;
 
+font-size:16px;
 font-weight:500;
 }
 
 .menu a:hover{
 
-background:rgba(255,255,255,0.08);
-
+background:#1b1d24;
 color:white;
-transform:translateX(5px);
 }
 
-.menu .active{
+.active{
 
-background:#ff004c;
-color:white;
-box-shadow:0 10px 30px rgba(255,0,76,0.4);
+background:#1db954;
+color:white !important;
 }
 
-/* ========================= */
+/* ============================ */
 /* MAIN */
-/* ========================= */
+/* ============================ */
 
 .main{
 
-padding:30px;
+flex:1;
+
 overflow-y:auto;
+
+padding:30px;
+padding-bottom:140px;
 }
 
-/* ========================= */
-/* TOPBAR */
-/* ========================= */
+/* ============================ */
+/* SEARCH */
+/* ============================ */
 
-.topbar{
+.top{
 
 display:flex;
 justify-content:space-between;
@@ -146,95 +137,83 @@ width:420px;
 .search input{
 
 width:100%;
-padding:18px 24px;
+
+padding:18px 22px;
 
 border:none;
 outline:none;
 
-border-radius:20px;
+background:#1a1c22;
 
-background:rgba(255,255,255,0.08);
+border-radius:18px;
 
 color:white;
 
 font-size:15px;
 }
 
-/* ========================= */
+.profile{
+
+display:flex;
+align-items:center;
+gap:15px;
+}
+
+.profile img{
+
+width:48px;
+height:48px;
+
+border-radius:50%;
+}
+
+/* ============================ */
 /* HERO */
-/* ========================= */
+/* ============================ */
 
 .hero{
 
-height:340px;
+height:320px;
 
-border-radius:35px;
+border-radius:32px;
 
 padding:35px;
 
 display:flex;
-align-items:center;
 justify-content:space-between;
+align-items:center;
 
 background:
-
 linear-gradient(
 135deg,
-rgba(255,255,255,0.08),
-rgba(255,255,255,0.03)
+#1db954,
+#121212
 );
-
-backdrop-filter:blur(25px);
 
 overflow:hidden;
 
-position:relative;
+margin-bottom:35px;
 }
 
-.hero::before{
+.hero-text h1{
 
-content:"";
-
-position:absolute;
-
-width:500px;
-height:500px;
-
-background:#ff004c;
-
-filter:blur(160px);
-
-opacity:0.25;
-
-right:-100px;
-top:-150px;
-}
-
-.hero-left{
-
-z-index:2;
-max-width:600px;
-}
-
-.hero h1{
-
-font-size:68px;
+font-size:72px;
 line-height:1;
-
-margin-bottom:20px;
+margin-bottom:18px;
 }
 
-.hero p{
+.hero-text p{
 
-color:#ccc;
 font-size:18px;
+color:#ddd;
 
-line-height:1.7;
+max-width:580px;
+line-height:1.6;
 }
 
 .hero-buttons{
 
-margin-top:30px;
+margin-top:28px;
 
 display:flex;
 gap:15px;
@@ -242,58 +221,49 @@ gap:15px;
 
 .btn{
 
-padding:16px 28px;
+padding:15px 28px;
 
 border:none;
 
 border-radius:40px;
 
-cursor:pointer;
-
+font-size:15px;
 font-weight:600;
 
-transition:0.3s;
+cursor:pointer;
 }
 
 .play{
 
-background:#ff004c;
+background:white;
+color:black;
+}
+
+.follow{
+
+background:rgba(255,255,255,0.1);
 color:white;
 }
 
-.play:hover{
+.hero img{
 
-transform:scale(1.05);
-box-shadow:0 15px 40px rgba(255,0,76,0.5);
-}
-
-.secondary{
-
-background:rgba(255,255,255,0.08);
-color:white;
-}
-
-.hero-cover{
-
-width:320px;
-height:320px;
-
-border-radius:35px;
+width:280px;
+height:280px;
 
 object-fit:cover;
 
-box-shadow:0 25px 70px rgba(0,0,0,0.6);
+border-radius:26px;
 
-z-index:2;
+box-shadow:0 20px 50px rgba(0,0,0,0.5);
 }
 
-/* ========================= */
+/* ============================ */
 /* SECTION */
-/* ========================= */
+/* ============================ */
 
 .section{
 
-margin-top:40px;
+margin-top:20px;
 }
 
 .section-title{
@@ -307,12 +277,12 @@ margin-bottom:22px;
 
 .section-title h2{
 
-font-size:32px;
+font-size:34px;
 }
 
-/* ========================= */
+/* ============================ */
 /* SONG GRID */
-/* ========================= */
+/* ============================ */
 
 .grid{
 
@@ -326,30 +296,22 @@ gap:24px;
 
 .card{
 
-background:
-linear-gradient(
-180deg,
-rgba(255,255,255,0.07),
-rgba(255,255,255,0.03)
-);
+background:#181a20;
 
-padding:18px;
+padding:16px;
 
-border-radius:28px;
+border-radius:22px;
 
-transition:0.4s;
+transition:0.3s;
 
 position:relative;
-
-overflow:hidden;
 }
 
 .card:hover{
 
-transform:translateY(-10px);
+transform:translateY(-8px);
 
-box-shadow:
-0 20px 60px rgba(0,0,0,0.5);
+background:#22252e;
 }
 
 .card img{
@@ -357,81 +319,102 @@ box-shadow:
 width:100%;
 aspect-ratio:1/1;
 
+border-radius:18px;
+
 object-fit:cover;
 
-border-radius:22px;
-
-margin-bottom:18px;
+margin-bottom:14px;
 }
 
 .card h3{
 
 font-size:18px;
-margin-bottom:5px;
+margin-bottom:4px;
 }
 
 .card p{
 
 font-size:13px;
-color:#bbb;
+color:#aaa;
 }
 
-.hover-play{
+.play-btn{
 
 position:absolute;
 
-bottom:105px;
-right:25px;
+right:20px;
+bottom:88px;
 
-width:60px;
-height:60px;
-
-background:#ff004c;
+width:58px;
+height:58px;
 
 border-radius:50%;
+
+background:#1db954;
 
 display:flex;
 align-items:center;
 justify-content:center;
 
-font-size:22px;
+font-size:24px;
 
 opacity:0;
 
-transform:translateY(15px);
+transform:translateY(12px);
 
 transition:0.3s;
 }
 
-.card:hover .hover-play{
+.card:hover .play-btn{
 
 opacity:1;
 transform:translateY(0);
 }
 
-/* ========================= */
+.actions{
+
+display:flex;
+gap:10px;
+
+margin-top:14px;
+}
+
+.actions button{
+
+border:none;
+
+background:#262932;
+
+color:white;
+
+padding:10px 14px;
+
+border-radius:12px;
+
+cursor:pointer;
+}
+
+/* ============================ */
 /* PLAYER */
-/* ========================= */
+/* ============================ */
 
 .player{
 
 position:fixed;
 
 bottom:0;
-left:260px;
+left:250px;
 right:0;
 
 height:95px;
 
-background:rgba(0,0,0,0.7);
-
-backdrop-filter:blur(20px);
+background:#111217;
 
 border-top:1px solid rgba(255,255,255,0.05);
 
 display:grid;
 
-grid-template-columns:320px 1fr 220px;
+grid-template-columns:300px 1fr 220px;
 
 align-items:center;
 
@@ -439,6 +422,8 @@ padding:0 25px;
 
 z-index:999;
 }
+
+/* LEFT */
 
 .now{
 
@@ -452,10 +437,24 @@ gap:15px;
 width:65px;
 height:65px;
 
-border-radius:16px;
+border-radius:14px;
 }
 
-.controls{
+.song-name{
+
+font-size:16px;
+font-weight:600;
+}
+
+.artist{
+
+font-size:13px;
+color:#aaa;
+}
+
+/* CENTER */
+
+.center{
 
 display:flex;
 flex-direction:column;
@@ -463,17 +462,19 @@ align-items:center;
 gap:10px;
 }
 
-.buttons{
+.controls{
 
 display:flex;
 align-items:center;
-gap:20px;
+gap:22px;
+
+font-size:22px;
 }
 
-.big-play{
+.big{
 
-width:58px;
-height:58px;
+width:56px;
+height:56px;
 
 border-radius:50%;
 
@@ -485,33 +486,38 @@ align-items:center;
 justify-content:center;
 
 font-size:24px;
-
-font-weight:bold;
 }
 
-.progress{
+.bar{
 
-width:100%;
+width:70%;
 height:5px;
 
-background:#333;
+background:#2f3138;
 
 border-radius:20px;
 
 overflow:hidden;
 }
 
-.progress div{
+.bar div{
 
 width:45%;
 height:100%;
 
-background:#ff004c;
+background:#1db954;
 }
 
-/* ========================= */
-/* MOBILE UI */
-/* ========================= */
+/* RIGHT */
+
+.right{
+
+text-align:right;
+}
+
+/* ============================ */
+/* MOBILE */
+/* ============================ */
 
 .mobile-nav{
 
@@ -520,22 +526,17 @@ display:none;
 
 @media(max-width:850px){
 
-.app{
-
-display:block;
-}
-
 .sidebar{
-
 display:none;
 }
 
 .main{
 
-padding:18px 18px 130px;
+padding:18px;
+padding-bottom:180px;
 }
 
-.topbar{
+.top{
 
 display:block;
 }
@@ -556,16 +557,17 @@ text-align:center;
 padding:25px;
 }
 
-.hero h1{
+.hero-text h1{
 
-font-size:42px;
+font-size:48px;
 }
 
-.hero-cover{
+.hero img{
 
 width:100%;
-max-width:320px;
+max-width:280px;
 height:auto;
+
 margin-top:25px;
 }
 
@@ -578,18 +580,35 @@ grid-template-columns:1fr;
 
 left:10px;
 right:10px;
-bottom:80px;
+bottom:82px;
 
-height:80px;
+height:82px;
 
-border-radius:24px;
+border-radius:22px;
 
 grid-template-columns:1fr auto;
 
-padding:12px 18px;
+padding:12px 16px;
 }
 
-.controls .progress{
+.center .bar{
+
+display:none;
+}
+
+.controls{
+
+gap:14px;
+font-size:18px;
+}
+
+.big{
+
+width:48px;
+height:48px;
+}
+
+.right{
 
 display:none;
 }
@@ -608,9 +627,7 @@ right:0;
 
 height:75px;
 
-background:rgba(0,0,0,0.92);
-
-backdrop-filter:blur(20px);
+background:#111217;
 
 border-top:1px solid rgba(255,255,255,0.05);
 }
@@ -633,52 +650,62 @@ font-size:12px;
 }
 
 </style>
+
 </head>
 
 <body>
 
 <div class="app">
 
+<!-- SIDEBAR -->
+
 <div class="sidebar">
 
 <div class="logo">
-🎧 <span>ASHPLEX</span>
+ASHPLEX
 </div>
 
 <div class="menu">
 
 <a class="active" href="#">🏠 Home</a>
-
 <a href="#">🔍 Search</a>
-
 <a href="#">🎵 Library</a>
-
 <a href="#">❤️ Liked</a>
-
 <a href="#">👑 Premium</a>
-
 <a href="#">💰 Rewards</a>
 
 </div>
 
 </div>
 
+<!-- MAIN -->
+
 <div class="main">
 
-<div class="topbar">
+<div class="top">
 
 <div class="search">
 
 <input type="text"
-placeholder="Search 90s Hindi songs...">
+placeholder="Search 90s Hindi Songs...">
+
+</div>
+
+<div class="profile">
+
+👑 Premium
+
+<img src="https://randomuser.me/api/portraits/men/32.jpg">
 
 </div>
 
 </div>
+
+<!-- HERO -->
 
 <div class="hero">
 
-<div class="hero-left">
+<div class="hero-text">
 
 <h1>
 Your Mood.
@@ -688,9 +715,7 @@ Your World.
 
 <p>
 
-AI-powered music recommendation platform
-focused on legendary 90s Hindi singers.
-
+AI-powered Hindi music platform inspired by premium music streaming apps.
 Created by Ashutosh Pandey.
 
 </p>
@@ -698,10 +723,10 @@ Created by Ashutosh Pandey.
 <div class="hero-buttons">
 
 <button class="btn play">
-▶ Play Now
+▶ Play
 </button>
 
-<button class="btn secondary">
+<button class="btn follow">
 ❤️ Explore
 </button>
 
@@ -709,10 +734,11 @@ Created by Ashutosh Pandey.
 
 </div>
 
-<img class="hero-cover"
-src="https://i.imgur.com/FY6hZ4G.jpeg">
+<img src="https://upload.wikimedia.org/wikipedia/en/3/3e/Dilwale_Dulhania_Le_Jayenge_poster.jpg">
 
 </div>
+
+<!-- TRENDING -->
 
 <div class="section">
 
@@ -724,11 +750,13 @@ src="https://i.imgur.com/FY6hZ4G.jpeg">
 
 <div class="grid">
 
+<!-- CARD -->
+
 <div class="card">
 
-<img src="https://i.imgur.com/FY6hZ4G.jpeg">
+<img src="https://upload.wikimedia.org/wikipedia/en/3/3b/Jo_Jeeta_Wohi_Sikandar.jpg">
 
-<div class="hover-play">
+<div class="play-btn">
 ▶
 </div>
 
@@ -736,13 +764,23 @@ src="https://i.imgur.com/FY6hZ4G.jpeg">
 
 <p>Udit Narayan</p>
 
+<div class="actions">
+
+<button>❤️</button>
+<button>📤</button>
+<button>➕</button>
+
 </div>
+
+</div>
+
+<!-- CARD -->
 
 <div class="card">
 
-<img src="https://i.imgur.com/q6P4D5N.jpeg">
+<img src="https://upload.wikimedia.org/wikipedia/en/3/3e/Dilwale_Dulhania_Le_Jayenge_poster.jpg">
 
-<div class="hover-play">
+<div class="play-btn">
 ▶
 </div>
 
@@ -750,13 +788,23 @@ src="https://i.imgur.com/FY6hZ4G.jpeg">
 
 <p>Kumar Sanu</p>
 
+<div class="actions">
+
+<button>❤️</button>
+<button>📤</button>
+<button>➕</button>
+
 </div>
+
+</div>
+
+<!-- CARD -->
 
 <div class="card">
 
-<img src="https://i.imgur.com/sx6QX7T.jpeg">
+<img src="https://upload.wikimedia.org/wikipedia/en/9/90/Aashiqui_1990_film_poster.jpg">
 
-<div class="hover-play">
+<div class="play-btn">
 ▶
 </div>
 
@@ -764,37 +812,53 @@ src="https://i.imgur.com/FY6hZ4G.jpeg">
 
 <p>Alka Yagnik</p>
 
-</div>
+<div class="actions">
+
+<button>❤️</button>
+<button>📤</button>
+<button>➕</button>
 
 </div>
 
 </div>
 
 </div>
+
+</div>
+
+</div>
+
+<!-- PLAYER -->
 
 <div class="player">
 
 <div class="now">
 
-<img src="https://i.imgur.com/FY6hZ4G.jpeg">
+<img src="https://upload.wikimedia.org/wikipedia/en/3/3b/Jo_Jeeta_Wohi_Sikandar.jpg">
 
 <div>
 
-<h4>Pehla Nasha</h4>
+<div class="song-name">
+Pehla Nasha
+</div>
 
-<p>Udit Narayan</p>
-
+<div class="artist">
+Udit Narayan
 </div>
 
 </div>
+
+</div>
+
+<!-- CENTER -->
+
+<div class="center">
 
 <div class="controls">
 
-<div class="buttons">
-
 ⏮
 
-<div class="big-play">
+<div class="big">
 ❚❚
 </div>
 
@@ -802,19 +866,23 @@ src="https://i.imgur.com/FY6hZ4G.jpeg">
 
 </div>
 
-<div class="progress">
+<div class="bar">
 <div></div>
 </div>
 
 </div>
 
-<div>
+<!-- RIGHT -->
+
+<div class="right">
 
 🔊 Volume
 
 </div>
 
 </div>
+
+<!-- MOBILE NAV -->
 
 <div class="mobile-nav">
 
