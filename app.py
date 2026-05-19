@@ -1,6 +1,25 @@
 from flask import Flask, render_template_string
+import requests
 
 app = Flask(__name__)
+
+# =========================================
+# JIOSAAVN API SONG FETCH
+# =========================================
+
+def get_songs():
+
+    url = "https://saavn.dev/api/search/songs?query=90s%20hindi"
+
+    response = requests.get(url)
+
+    data = response.json()
+
+    return data["data"]["results"][:12]
+
+# =========================================
+# HTML
+# =========================================
 
 HTML = """
 
@@ -26,45 +45,47 @@ font-family:'Poppins',sans-serif;
 }
 
 body{
-
 background:#0b0b0f;
 color:white;
-overflow:hidden;
+overflow-x:hidden;
 }
 
-/* ============================ */
+/* ======================= */
 /* APP */
-/* ============================ */
+/* ======================= */
 
 .app{
-
 display:flex;
-height:100vh;
+min-height:100vh;
 }
 
-/* ============================ */
+/* ======================= */
 /* SIDEBAR */
-/* ============================ */
+/* ======================= */
 
 .sidebar{
 
 width:250px;
-
 background:#111217;
 
 padding:30px 20px;
+
+position:fixed;
+top:0;
+left:0;
+bottom:0;
 
 border-right:1px solid rgba(255,255,255,0.05);
 }
 
 .logo{
 
-font-size:34px;
+font-size:38px;
 font-weight:800;
 
 color:#1db954;
 
-margin-bottom:40px;
+margin-bottom:45px;
 }
 
 .menu{
@@ -77,7 +98,6 @@ gap:14px;
 .menu a{
 
 text-decoration:none;
-
 color:#bbb;
 
 padding:15px 18px;
@@ -85,8 +105,6 @@ padding:15px 18px;
 border-radius:16px;
 
 transition:0.3s;
-
-font-size:16px;
 font-weight:500;
 }
 
@@ -102,23 +120,23 @@ background:#1db954;
 color:white !important;
 }
 
-/* ============================ */
+/* ======================= */
 /* MAIN */
-/* ============================ */
+/* ======================= */
 
 .main{
 
-flex:1;
+margin-left:250px;
 
-overflow-y:auto;
+flex:1;
 
 padding:30px;
 padding-bottom:140px;
 }
 
-/* ============================ */
+/* ======================= */
 /* SEARCH */
-/* ============================ */
+/* ======================= */
 
 .top{
 
@@ -130,8 +148,7 @@ margin-bottom:30px;
 }
 
 .search{
-
-width:420px;
+width:450px;
 }
 
 .search input{
@@ -152,24 +169,9 @@ color:white;
 font-size:15px;
 }
 
-.profile{
-
-display:flex;
-align-items:center;
-gap:15px;
-}
-
-.profile img{
-
-width:48px;
-height:48px;
-
-border-radius:50%;
-}
-
-/* ============================ */
+/* ======================= */
 /* HERO */
-/* ============================ */
+/* ======================= */
 
 .hero{
 
@@ -177,7 +179,7 @@ height:320px;
 
 border-radius:32px;
 
-padding:35px;
+padding:40px;
 
 display:flex;
 justify-content:space-between;
@@ -192,17 +194,17 @@ linear-gradient(
 
 overflow:hidden;
 
-margin-bottom:35px;
+margin-bottom:40px;
 }
 
-.hero-text h1{
+.hero h1{
 
-font-size:72px;
+font-size:70px;
 line-height:1;
 margin-bottom:18px;
 }
 
-.hero-text p{
+.hero p{
 
 font-size:18px;
 color:#ddd;
@@ -234,21 +236,19 @@ cursor:pointer;
 }
 
 .play{
-
 background:white;
 color:black;
 }
 
-.follow{
-
-background:rgba(255,255,255,0.1);
+.explore{
+background:rgba(255,255,255,0.15);
 color:white;
 }
 
 .hero img{
 
-width:280px;
-height:280px;
+width:270px;
+height:270px;
 
 object-fit:cover;
 
@@ -257,12 +257,11 @@ border-radius:26px;
 box-shadow:0 20px 50px rgba(0,0,0,0.5);
 }
 
-/* ============================ */
+/* ======================= */
 /* SECTION */
-/* ============================ */
+/* ======================= */
 
 .section{
-
 margin-top:20px;
 }
 
@@ -276,13 +275,12 @@ margin-bottom:22px;
 }
 
 .section-title h2{
-
 font-size:34px;
 }
 
-/* ============================ */
-/* SONG GRID */
-/* ============================ */
+/* ======================= */
+/* GRID */
+/* ======================= */
 
 .grid{
 
@@ -293,6 +291,10 @@ repeat(auto-fill,minmax(220px,1fr));
 
 gap:24px;
 }
+
+/* ======================= */
+/* CARD */
+/* ======================= */
 
 .card{
 
@@ -343,7 +345,7 @@ color:#aaa;
 position:absolute;
 
 right:20px;
-bottom:88px;
+bottom:95px;
 
 width:58px;
 height:58px;
@@ -394,9 +396,9 @@ border-radius:12px;
 cursor:pointer;
 }
 
-/* ============================ */
+/* ======================= */
 /* PLAYER */
-/* ============================ */
+/* ======================= */
 
 .player{
 
@@ -422,8 +424,6 @@ padding:0 25px;
 
 z-index:999;
 }
-
-/* LEFT */
 
 .now{
 
@@ -451,8 +451,6 @@ font-weight:600;
 font-size:13px;
 color:#aaa;
 }
-
-/* CENTER */
 
 .center{
 
@@ -508,19 +506,11 @@ height:100%;
 background:#1db954;
 }
 
-/* RIGHT */
-
-.right{
-
-text-align:right;
-}
-
-/* ============================ */
+/* ======================= */
 /* MOBILE */
-/* ============================ */
+/* ======================= */
 
 .mobile-nav{
-
 display:none;
 }
 
@@ -532,12 +522,13 @@ display:none;
 
 .main{
 
+margin-left:0;
+
 padding:18px;
 padding-bottom:180px;
 }
 
 .top{
-
 display:block;
 }
 
@@ -557,8 +548,7 @@ text-align:center;
 padding:25px;
 }
 
-.hero-text h1{
-
+.hero h1{
 font-size:48px;
 }
 
@@ -572,7 +562,6 @@ margin-top:25px;
 }
 
 .grid{
-
 grid-template-columns:1fr;
 }
 
@@ -592,25 +581,17 @@ padding:12px 16px;
 }
 
 .center .bar{
-
 display:none;
 }
 
 .controls{
-
 gap:14px;
 font-size:18px;
 }
 
 .big{
-
 width:48px;
 height:48px;
-}
-
-.right{
-
-display:none;
 }
 
 .mobile-nav{
@@ -649,6 +630,8 @@ font-size:12px;
 
 }
 
+/* ======================= */
+
 </style>
 
 </head>
@@ -682,6 +665,8 @@ ASHPLEX
 
 <div class="main">
 
+<!-- SEARCH -->
+
 <div class="top">
 
 <div class="search">
@@ -691,21 +676,13 @@ placeholder="Search 90s Hindi Songs...">
 
 </div>
 
-<div class="profile">
-
-👑 Premium
-
-<img src="https://randomuser.me/api/portraits/men/32.jpg">
-
-</div>
-
 </div>
 
 <!-- HERO -->
 
 <div class="hero">
 
-<div class="hero-text">
+<div>
 
 <h1>
 Your Mood.
@@ -726,7 +703,7 @@ Created by Ashutosh Pandey.
 ▶ Play
 </button>
 
-<button class="btn follow">
+<button class="btn explore">
 ❤️ Explore
 </button>
 
@@ -734,11 +711,11 @@ Created by Ashutosh Pandey.
 
 </div>
 
-<img src="https://upload.wikimedia.org/wikipedia/en/3/3e/Dilwale_Dulhania_Le_Jayenge_poster.jpg">
+<img src="https://c.saavncdn.com/editorial/logo/JioSaavn_20211117134141_500x500.jpg">
 
 </div>
 
-<!-- TRENDING -->
+<!-- PLAYLIST -->
 
 <div class="section">
 
@@ -750,19 +727,19 @@ Created by Ashutosh Pandey.
 
 <div class="grid">
 
-<!-- CARD -->
+{% for song in songs %}
 
 <div class="card">
 
-<img src="https://upload.wikimedia.org/wikipedia/en/3/3b/Jo_Jeeta_Wohi_Sikandar.jpg">
+<img src="{{ song.image[2].url }}">
 
 <div class="play-btn">
 ▶
 </div>
 
-<h3>Pehla Nasha</h3>
+<h3>{{ song.name }}</h3>
 
-<p>Udit Narayan</p>
+<p>{{ song.primaryArtists }}</p>
 
 <div class="actions">
 
@@ -774,53 +751,7 @@ Created by Ashutosh Pandey.
 
 </div>
 
-<!-- CARD -->
-
-<div class="card">
-
-<img src="https://upload.wikimedia.org/wikipedia/en/3/3e/Dilwale_Dulhania_Le_Jayenge_poster.jpg">
-
-<div class="play-btn">
-▶
-</div>
-
-<h3>Tujhe Dekha To</h3>
-
-<p>Kumar Sanu</p>
-
-<div class="actions">
-
-<button>❤️</button>
-<button>📤</button>
-<button>➕</button>
-
-</div>
-
-</div>
-
-<!-- CARD -->
-
-<div class="card">
-
-<img src="https://upload.wikimedia.org/wikipedia/en/9/90/Aashiqui_1990_film_poster.jpg">
-
-<div class="play-btn">
-▶
-</div>
-
-<h3>Dheere Dheere</h3>
-
-<p>Alka Yagnik</p>
-
-<div class="actions">
-
-<button>❤️</button>
-<button>📤</button>
-<button>➕</button>
-
-</div>
-
-</div>
+{% endfor %}
 
 </div>
 
@@ -834,23 +765,21 @@ Created by Ashutosh Pandey.
 
 <div class="now">
 
-<img src="https://upload.wikimedia.org/wikipedia/en/3/3b/Jo_Jeeta_Wohi_Sikandar.jpg">
+<img src="{{ songs[0].image[2].url }}">
 
 <div>
 
 <div class="song-name">
-Pehla Nasha
+{{ songs[0].name }}
 </div>
 
 <div class="artist">
-Udit Narayan
+{{ songs[0].primaryArtists }}
 </div>
 
 </div>
 
 </div>
-
-<!-- CENTER -->
 
 <div class="center">
 
@@ -872,9 +801,7 @@ Udit Narayan
 
 </div>
 
-<!-- RIGHT -->
-
-<div class="right">
+<div>
 
 🔊 Volume
 
@@ -905,9 +832,18 @@ Udit Narayan
 
 """
 
+# =========================================
+# ROUTE
+# =========================================
+
 @app.route("/")
 def home():
-    return render_template_string(HTML)
+
+    songs = get_songs()
+
+    return render_template_string(HTML, songs=songs)
+
+# =========================================
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=10000)
