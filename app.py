@@ -1,7 +1,8 @@
-<!-- ========================================= -->
-<!-- 🔥 ASHPLEX PREMIUM PROFESSIONAL UI -->
-<!-- Spotify + Apple Music Inspired -->
-<!-- ========================================= -->
+from flask import Flask, render_template_string
+
+app = Flask(__name__)
+
+HTML = """
 
 <!DOCTYPE html>
 <html lang="en">
@@ -12,8 +13,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <title>ASHPLEX</title>
-
-<link rel="preconnect" href="https://fonts.googleapis.com">
 
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
@@ -159,20 +158,6 @@ background:rgba(255,255,255,0.08);
 color:white;
 
 font-size:15px;
-}
-
-.profile{
-
-display:flex;
-align-items:center;
-gap:15px;
-}
-
-.profile img{
-
-width:50px;
-height:50px;
-border-radius:50%;
 }
 
 /* ========================= */
@@ -424,29 +409,6 @@ opacity:1;
 transform:translateY(0);
 }
 
-.card-actions{
-
-margin-top:15px;
-
-display:flex;
-gap:10px;
-}
-
-.small-btn{
-
-padding:10px 14px;
-
-border:none;
-
-border-radius:14px;
-
-background:rgba(255,255,255,0.08);
-
-color:white;
-
-cursor:pointer;
-}
-
 /* ========================= */
 /* PLAYER */
 /* ========================= */
@@ -677,10 +639,6 @@ font-size:12px;
 
 <div class="app">
 
-<!-- ========================= -->
-<!-- SIDEBAR -->
-<!-- ========================= -->
-
 <div class="sidebar">
 
 <div class="logo">
@@ -705,10 +663,6 @@ font-size:12px;
 
 </div>
 
-<!-- ========================= -->
-<!-- MAIN -->
-<!-- ========================= -->
-
 <div class="main">
 
 <div class="topbar">
@@ -720,17 +674,7 @@ placeholder="Search 90s Hindi songs...">
 
 </div>
 
-<div class="profile">
-
-👑 Premium User
-
-<img src="https://i.pravatar.cc/100">
-
 </div>
-
-</div>
-
-<!-- HERO -->
 
 <div class="hero">
 
@@ -770,21 +714,15 @@ src="https://i.imgur.com/FY6hZ4G.jpeg">
 
 </div>
 
-<!-- TRENDING -->
-
 <div class="section">
 
 <div class="section-title">
 
 <h2>🔥 Trending 90s</h2>
 
-<span>Show all</span>
-
 </div>
 
 <div class="grid">
-
-<!-- CARD -->
 
 <div class="card">
 
@@ -798,25 +736,7 @@ src="https://i.imgur.com/FY6hZ4G.jpeg">
 
 <p>Udit Narayan</p>
 
-<div class="card-actions">
-
-<button class="small-btn">
-❤️
-</button>
-
-<button class="small-btn">
-📤
-</button>
-
-<button class="small-btn">
-➕
-</button>
-
 </div>
-
-</div>
-
-<!-- CARD -->
 
 <div class="card">
 
@@ -830,25 +750,7 @@ src="https://i.imgur.com/FY6hZ4G.jpeg">
 
 <p>Kumar Sanu</p>
 
-<div class="card-actions">
-
-<button class="small-btn">
-❤️
-</button>
-
-<button class="small-btn">
-📤
-</button>
-
-<button class="small-btn">
-➕
-</button>
-
 </div>
-
-</div>
-
-<!-- CARD -->
 
 <div class="card">
 
@@ -862,20 +764,6 @@ src="https://i.imgur.com/FY6hZ4G.jpeg">
 
 <p>Alka Yagnik</p>
 
-<div class="card-actions">
-
-<button class="small-btn">
-❤️
-</button>
-
-<button class="small-btn">
-📤
-</button>
-
-<button class="small-btn">
-➕
-</button>
-
 </div>
 
 </div>
@@ -883,12 +771,6 @@ src="https://i.imgur.com/FY6hZ4G.jpeg">
 </div>
 
 </div>
-
-</div>
-
-<!-- ========================= -->
-<!-- PLAYER -->
-<!-- ========================= -->
 
 <div class="player">
 
@@ -934,8 +816,6 @@ src="https://i.imgur.com/FY6hZ4G.jpeg">
 
 </div>
 
-<!-- MOBILE NAV -->
-
 <div class="mobile-nav">
 
 <a href="#">🏠<br>Home</a>
@@ -954,3 +834,12 @@ src="https://i.imgur.com/FY6hZ4G.jpeg">
 
 </body>
 </html>
+
+"""
+
+@app.route("/")
+def home():
+    return render_template_string(HTML)
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=10000)
