@@ -34,18 +34,18 @@ def svg_cover(title="ASHPLEX", subtitle="Your Music"):
     return "data:image/svg+xml;base64," + base64.b64encode(svg.encode()).decode()
 
 SONGS = [
-    {"title":"Pehla Nasha", "artist":"Udit Narayan", "mood":"romantic", "cover":svg_cover("Pehla Nasha","Udit Narayan")},
-    {"title":"Tujhe Dekha To", "artist":"Kumar Sanu", "mood":"romantic", "cover":svg_cover("Tujhe Dekha To","Kumar Sanu")},
-    {"title":"Dheere Dheere Se", "artist":"Kumar Sanu, Anuradha Paudwal", "mood":"relax", "cover":svg_cover("Dheere Dheere","Kumar Sanu")},
-    {"title":"Chura Ke Dil Mera", "artist":"Kumar Sanu, Alka Yagnik", "mood":"happy", "cover":svg_cover("Chura Ke Dil","Alka Yagnik")},
-    {"title":"Main Koi Aisa Geet Gaoon", "artist":"Abhijeet", "mood":"happy", "cover":svg_cover("Aisa Geet","Abhijeet")},
-    {"title":"Sandese Aate Hain", "artist":"Sonu Nigam", "mood":"sad", "cover":svg_cover("Sandese","Sonu Nigam")},
-    {"title":"Bahut Pyar Karte Hain", "artist":"Anuradha Paudwal", "mood":"sad", "cover":svg_cover("Bahut Pyar","Anuradha")},
-    {"title":"Pardesi Pardesi", "artist":"Udit Narayan, Alka Yagnik", "mood":"sad", "cover":svg_cover("Pardesi","Udit • Alka")},
-    {"title":"Tip Tip Barsa Pani", "artist":"Udit Narayan, Alka Yagnik", "mood":"party", "cover":svg_cover("Tip Tip","Party Mix")},
-    {"title":"Ole Ole", "artist":"Abhijeet", "mood":"party", "cover":svg_cover("Ole Ole","Abhijeet")},
-    {"title":"Aankhon Ki Gustakhiyan", "artist":"Kumar Sanu, Kavita Krishnamurthy", "mood":"romantic", "cover":svg_cover("Gustakhiyan","Kavita • Sanu")},
-    {"title":"Saanson Ki Zarurat Hai", "artist":"Kumar Sanu", "mood":"relax", "cover":svg_cover("Saanson Ki","Kumar Sanu")},
+    {"title":"Pehla Nasha", "artist":"Udit Narayan", "mood":"romantic", "cover":svg_cover("Pehla Nasha","Udit Narayan"), "audio":"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
+    {"title":"Tujhe Dekha To", "artist":"Kumar Sanu", "mood":"romantic", "cover":svg_cover("Tujhe Dekha To","Kumar Sanu"), "audio":"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3",
+    {"title":"Dheere Dheere Se", "artist":"Kumar Sanu, Anuradha Paudwal", "mood":"relax", "cover":svg_cover("Dheere Dheere","Kumar Sanu"), "audio":"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3",
+    {"title":"Chura Ke Dil Mera", "artist":"Kumar Sanu, Alka Yagnik", "mood":"happy", "cover":svg_cover("Chura Ke Dil","Alka Yagnik"), "audio":"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3",
+    {"title":"Main Koi Aisa Geet Gaoon", "artist":"Abhijeet", "mood":"happy", "cover":svg_cover("Aisa Geet","Abhijeet"), "audio":"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3",
+    {"title":"Sandese Aate Hain", "artist":"Sonu Nigam", "mood":"sad", "cover":svg_cover("Sandese","Sonu Nigam"), "audio":"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-6.mp3",
+    {"title":"Bahut Pyar Karte Hain", "artist":"Anuradha Paudwal", "mood":"sad", "cover":svg_cover("Bahut Pyar","Anuradha"), "audio":"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-7.mp3",
+    {"title":"Pardesi Pardesi", "artist":"Udit Narayan, Alka Yagnik", "mood":"sad", "cover":svg_cover("Pardesi","Udit • Alka"), "audio":"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3",
+    {"title":"Tip Tip Barsa Pani", "artist":"Udit Narayan, Alka Yagnik", "mood":"party", "cover":svg_cover("Tip Tip","Party Mix"), "audio":"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-9.mp3",
+    {"title":"Ole Ole", "artist":"Abhijeet", "mood":"party", "cover":svg_cover("Ole Ole","Abhijeet"), "audio":"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-10.mp3",
+    {"title":"Aankhon Ki Gustakhiyan", "artist":"Kumar Sanu, Kavita Krishnamurthy", "mood":"romantic", "cover":svg_cover("Gustakhiyan","Kavita • Sanu"), "audio":"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-11.mp3",
+    {"title":"Saanson Ki Zarurat Hai", "artist":"Kumar Sanu", "mood":"relax", "cover":svg_cover("Saanson Ki","Kumar Sanu"), "audio":"https://www.soundhelix.com/examples/mp3/SoundHelix-Song-12.mp3",
 ]
 
 PLAYLISTS = [
@@ -107,18 +107,77 @@ body{overflow:auto}.app{display:block;height:auto;min-height:100vh;padding-botto
 <script>
 const songs = {{ songs|tojson }};
 let current = 0;
-function playSong(i){
-  current=i;
-  const s=songs[i];
-  document.getElementById("pimg").src=s.cover;
-  document.getElementById("ptitle").innerText=s.title;
-  document.getElementById("partist").innerText=s.artist;
-  document.getElementById("mainBtn").innerText="Ⅱ";
+let isPlaying = false;
+
+function audioEl(){
+  return document.getElementById("ashplexAudio");
 }
+
+function playSong(i){
+  current = i;
+  const s = songs[i];
+
+  document.getElementById("pimg").src = s.cover;
+  document.getElementById("ptitle").innerText = s.title;
+  document.getElementById("partist").innerText = s.artist;
+
+  const audio = audioEl();
+  audio.src = s.audio;
+  audio.play().then(() => {
+    isPlaying = true;
+    document.getElementById("mainBtn").innerText = "Ⅱ";
+  }).catch(() => {
+    alert("Browser ne autoplay block kiya. Play button dobara click karo.");
+  });
+}
+
+function toggleMainPlay(){
+  const audio = audioEl();
+
+  if(!audio.src){
+    playSong(current);
+    return;
+  }
+
+  if(audio.paused){
+    audio.play();
+    isPlaying = true;
+    document.getElementById("mainBtn").innerText = "Ⅱ";
+  }else{
+    audio.pause();
+    isPlaying = false;
+    document.getElementById("mainBtn").innerText = "▶";
+  }
+}
+
+function nextSong(){
+  current = (current + 1) % songs.length;
+  playSong(current);
+}
+
+function prevSong(){
+  current = (current - 1 + songs.length) % songs.length;
+  playSong(current);
+}
+
+function updateProgress(){
+  const audio = audioEl();
+  const fill = document.getElementById("progressFill");
+  if(audio.duration){
+    fill.style.width = ((audio.currentTime / audio.duration) * 100) + "%";
+  }
+}
+
 function shareSong(title){
   if(navigator.share){navigator.share({title:title,text:"Listen on ASHPLEX",url:location.href});}
   else alert("Share ASHPLEX: "+location.href);
 }
+
+window.addEventListener("DOMContentLoaded", () => {
+  const audio = audioEl();
+  audio.addEventListener("timeupdate", updateProgress);
+  audio.addEventListener("ended", nextSong);
+});
 </script>
 </head>
 <body>
@@ -146,7 +205,7 @@ function shareSong(title){
       <div>
         <div class="eyebrow">AI Music Platform</div>
         <h1>Your Mood.<br>Your Music.<br>Your World.</h1>
-        <p>A real music-app style ASHPLEX dashboard with mood suggestions, playlists, premium UI, like/share, and responsive phone + Mac layout.</p>
+        <p>A real music-app style ASHPLEX dashboard with mood suggestions, playlists, premium UI, like/share, responsive phone + Mac layout, and working in-app audio demo.</p>
         <div class="btns">
           <a class="btn primary" href="#songs">▶ Play Now</a>
           <a class="btn secondary" href="#playlists">🎵 Explore</a>
@@ -210,12 +269,13 @@ function shareSong(title){
       <div><h4 id="ptitle">{{songs[0].title}}</h4><p id="partist">{{songs[0].artist}}</p></div>
     </div>
     <div class="controls">
-      <div class="buttons"><button class="ctrl">⏮</button><button id="mainBtn" class="round">▶</button><button class="ctrl">⏭</button></div>
-      <div class="bar"><div class="fill"></div></div>
+      <div class="buttons"><button class="ctrl" onclick="prevSong()">⏮</button><button id="mainBtn" class="round" onclick="toggleMainPlay()">▶</button><button class="ctrl" onclick="nextSong()">⏭</button></div>
+      <div class="bar"><div id="progressFill" class="fill"></div></div>
     </div>
     <div class="volume">🔊 Volume</div>
   </footer>
 
+  <audio id="ashplexAudio" preload="metadata"></audio>
   <nav class="mobilebar">
     <a href="/"><span>🏠</span>Home</a>
     <a href="#moods"><span>🤖</span>Mood</a>
