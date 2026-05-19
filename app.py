@@ -1,16 +1,17 @@
 from flask import Flask, render_template_string, request
 import requests
 import base64
+import html
 from urllib.parse import quote_plus
 
 app = Flask(__name__)
 
 # ---------------------------
-# ASHPLEX SVG cover fallback
+# ASHPLEX SVG fallback cover
 # ---------------------------
 def svg_cover(title="ASHPLEX", subtitle="90s Hindi"):
-    safe_title = str(title).replace("&", "&amp;").replace("<", "").replace(">", "")
-    safe_subtitle = str(subtitle).replace("&", "&amp;").replace("<", "").replace(">", "")
+    safe_title = html.escape(str(title))[:22]
+    safe_subtitle = html.escape(str(subtitle))[:32]
     svg = f"""
     <svg xmlns="http://www.w3.org/2000/svg" width="600" height="600">
       <defs>
@@ -29,8 +30,8 @@ def svg_cover(title="ASHPLEX", subtitle="90s Hindi"):
       <circle cx="475" cy="95" r="75" fill="#ffffff" opacity="0.10"/>
       <circle cx="110" cy="500" r="95" fill="#ffffff" opacity="0.08"/>
       <text x="48" y="95" fill="#ffffff" font-size="34" font-family="Arial" font-weight="700">ASHPLEX</text>
-      <text x="48" y="300" fill="#ffffff" font-size="44" font-family="Arial" font-weight="800">{safe_title[:22]}</text>
-      <text x="48" y="355" fill="#d8f8df" font-size="25" font-family="Arial">{safe_subtitle[:32]}</text>
+      <text x="48" y="300" fill="#ffffff" font-size="44" font-family="Arial" font-weight="800">{safe_title}</text>
+      <text x="48" y="355" fill="#d8f8df" font-size="25" font-family="Arial">{safe_subtitle}</text>
       <text x="48" y="520" fill="#ffffff" opacity="0.75" font-size="22" font-family="Arial">Your Mood. Your Music. Your World.</text>
     </svg>
     """
@@ -44,6 +45,20 @@ def pick_image(song, fallback_title="ASHPLEX", fallback_artist="90s Hindi"):
             if isinstance(item, dict) and item.get("url"):
                 return item["url"]
     return svg_cover(fallback_title, fallback_artist)
+
+def pick_audio(song):
+    """
+    saavn.dev often returns downloadUrl list. We pick the best available.
+    If not present, return empty string and UI will show no-audio message.
+    """
+    urls = song.get("downloadUrl") or song.get("download_url") or []
+    if isinstance(urls, list):
+        for item in reversed(urls):
+            if isinstance(item, dict) and item.get("url"):
+                return item["url"]
+    if isinstance(urls, str):
+        return urls
+    return ""
 
 # ---------------------------
 # JioSaavn API
@@ -60,10 +75,14 @@ def fetch_saavn(query="90s hindi songs", limit=20):
         for s in results[:limit]:
             name = s.get("name") or s.get("title") or "Unknown Song"
             artist = s.get("primaryArtists") or s.get("primaryArtistsName") or "Unknown Artist"
+            image = pick_image(s, name, artist)
+            audio = pick_audio(s)
+
             songs.append({
                 "name": name,
                 "artist": artist,
-                "image": pick_image(s, name, artist),
+                "image": image,
+                "audio": audio,
                 "youtube": "https://www.youtube.com/results?search_query=" + quote_plus(name + " " + artist)
             })
 
@@ -87,12 +106,17 @@ def fallback_songs():
         ("Chura Ke Dil Mera", "Kumar Sanu, Alka Yagnik"),
         ("Tip Tip Barsa Pani", "Udit Narayan, Alka Yagnik"),
         ("Bahut Pyar Karte Hain", "Anuradha Paudwal"),
-        ("Saanson Ki Zarurat Hai", "Kumar Sanu"),
-        ("Dil Hai Ke Manta Nahin", "Anuradha Paudwal, Kumar Sanu"),
-        ("Yeh Kaali Kaali Aankhen", "Kumar Sanu"),
-        ("Ole Ole", "Abhijeet"),
     ]
-    return [{"name": n, "artist": a, "image": svg_cover(n, a), "youtube": "https://www.youtube.com/results?search_query=" + quote_plus(n + " " + a)} for n, a in data]
+    return [
+        {
+            "name": n,
+            "artist": a,
+            "image": svg_cover(n, a),
+            "audio": "",
+            "youtube": "https://www.youtube.com/results?search_query=" + quote_plus(n + " " + a)
+        }
+        for n, a in data
+    ]
 
 def get_songs(query="90s hindi songs", limit=20):
     songs = fetch_saavn(query, limit)
@@ -122,8 +146,6 @@ def get_playlists():
         {"title": "Udit Narayan Mix", "subtitle": "Melody playlist", "query": "Udit Narayan 90s hindi songs", "image": svg_cover("Udit Narayan", "Mix")},
         {"title": "Alka Yagnik Hits", "subtitle": "Queen of melody", "query": "Alka Yagnik 90s hindi songs", "image": svg_cover("Alka Yagnik", "Hits")},
         {"title": "Sonu Nigam Classics", "subtitle": "Golden voice", "query": "Sonu Nigam 90s hindi songs", "image": svg_cover("Sonu Nigam", "Classics")},
-        {"title": "Anuradha Paudwal", "subtitle": "Soft devotional + romantic", "query": "Anuradha Paudwal 90s hindi songs", "image": svg_cover("Anuradha", "Paudwal")},
-        {"title": "Abhijeet Special", "subtitle": "Energetic 90s vocals", "query": "Abhijeet 90s hindi songs", "image": svg_cover("Abhijeet", "Special")},
     ]
 
 HTML = """
@@ -143,7 +165,7 @@ body{background:#0b0b0f;color:white;overflow-x:hidden}
 .menu{display:flex;flex-direction:column;gap:14px}
 .menu a{text-decoration:none;color:#bbb;padding:15px 18px;border-radius:16px;transition:.25s;font-weight:500}
 .menu a:hover,.menu .active{background:#1db954;color:white}
-.main{margin-left:250px;flex:1;padding:30px;padding-bottom:145px}
+.main{margin-left:250px;flex:1;padding:30px;padding-bottom:155px}
 .top{display:flex;justify-content:space-between;align-items:center;margin-bottom:28px;gap:18px}
 .search{width:460px}
 .search input{width:100%;padding:18px 22px;border:0;outline:0;background:#1a1c22;border-radius:18px;color:white;font-size:15px}
@@ -173,28 +195,92 @@ body{background:#0b0b0f;color:white;overflow-x:hidden}
 .card img{width:100%;aspect-ratio:1/1;border-radius:18px;object-fit:cover;margin-bottom:14px;background:#111}
 .card h3{font-size:17px;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .card p{font-size:13px;color:#aaa;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.play-btn{position:absolute;right:20px;bottom:92px;width:54px;height:54px;border-radius:50%;background:#1db954;display:flex;align-items:center;justify-content:center;font-size:22px;opacity:0;transform:translateY(12px);transition:.25s}
+.play-btn{position:absolute;right:20px;bottom:92px;width:54px;height:54px;border-radius:50%;background:#1db954;color:white;border:0;display:flex;align-items:center;justify-content:center;font-size:22px;opacity:0;transform:translateY(12px);transition:.25s;cursor:pointer}
 .card:hover .play-btn{opacity:1;transform:translateY(0)}
 .actions{display:flex;gap:10px;margin-top:14px}.actions button{border:0;background:#262932;color:white;padding:10px 14px;border-radius:12px;cursor:pointer}
-.player{position:fixed;bottom:0;left:250px;right:0;height:95px;background:#111217;border-top:1px solid rgba(255,255,255,.06);display:grid;grid-template-columns:300px 1fr 220px;align-items:center;padding:0 25px;z-index:99}
-.now{display:flex;align-items:center;gap:15px}.now img{width:65px;height:65px;border-radius:14px;object-fit:cover}
-.song-name{font-size:16px;font-weight:700}.artist{font-size:13px;color:#aaa}
+.player{position:fixed;bottom:0;left:250px;right:0;height:105px;background:#111217;border-top:1px solid rgba(255,255,255,.06);display:grid;grid-template-columns:330px 1fr 220px;align-items:center;padding:0 25px;z-index:99}
+.now{display:flex;align-items:center;gap:15px}.now img{width:72px;height:72px;border-radius:16px;object-fit:cover;background:#111}
+.song-name{font-size:16px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:210px}.artist{font-size:13px;color:#aaa;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:210px}
 .center{display:flex;flex-direction:column;align-items:center;gap:10px}.controls{display:flex;align-items:center;gap:22px;font-size:22px}
-.big{width:56px;height:56px;border-radius:50%;background:white;color:black;display:flex;align-items:center;justify-content:center;font-size:24px}
-.bar{width:70%;height:5px;background:#2f3138;border-radius:20px;overflow:hidden}.bar div{width:45%;height:100%;background:#1db954}
+.control-btn{border:0;background:transparent;color:white;font-size:22px;cursor:pointer}
+.big{width:56px;height:56px;border-radius:50%;background:white;color:black;display:flex;align-items:center;justify-content:center;font-size:24px;border:0;cursor:pointer}
+.bar{width:70%;height:5px;background:#2f3138;border-radius:20px;overflow:hidden;cursor:pointer}.bar div{width:0%;height:100%;background:#1db954}
 .mobile-nav{display:none}
 .ad{margin-top:24px;background:linear-gradient(135deg,#22252e,#15161b);border:1px solid rgba(255,255,255,.06);padding:18px;border-radius:22px;text-align:center;color:#bbb}
+.audio-note{font-size:12px;color:#ffcf70;margin-top:6px}
 @media(max-width:850px){
-.sidebar{display:none}.main{margin-left:0;padding:18px;padding-bottom:180px}.top{display:block}.search{width:100%;margin-bottom:20px}.profile{display:none}
+.sidebar{display:none}.main{margin-left:0;padding:18px;padding-bottom:190px}.top{display:block}.search{width:100%;margin-bottom:20px}.profile{display:none}
 .hero{height:auto;flex-direction:column;text-align:center;padding:25px}.hero h1{font-size:42px}.hero img{width:100%;max-width:280px;height:auto;margin-top:25px}
 .playlist-row{display:flex;overflow-x:auto;gap:14px;padding-bottom:8px}.playlist-card{min-width:165px}
-.grid{grid-template-columns:1fr}.player{left:10px;right:10px;bottom:82px;height:82px;border-radius:22px;grid-template-columns:1fr auto;padding:12px 16px}
-.center .bar,.right{display:none}.controls{gap:14px;font-size:18px}.big{width:48px;height:48px}
+.grid{grid-template-columns:1fr}.player{left:10px;right:10px;bottom:82px;height:92px;border-radius:22px;grid-template-columns:1fr auto;padding:12px 16px}
+.center .bar,.right{display:none}.controls{gap:12px;font-size:18px}.control-btn{font-size:18px}.big{width:48px;height:48px}
 .mobile-nav{display:grid;grid-template-columns:repeat(5,1fr);position:fixed;bottom:0;left:0;right:0;height:75px;background:#111217;border-top:1px solid rgba(255,255,255,.06)}
 .mobile-nav a{display:flex;flex-direction:column;justify-content:center;align-items:center;color:white;text-decoration:none;font-size:12px}
 }
 </style>
 <script>
+let currentAudio = null;
+
+function playSong(name, artist, image, audio){
+  const audioEl = document.getElementById("ashplexAudio");
+  const playBtn = document.getElementById("mainPlayBtn");
+
+  document.getElementById("playerImage").src = image;
+  document.getElementById("playerTitle").innerText = name;
+  document.getElementById("playerArtist").innerText = artist;
+
+  if(!audio){
+    document.getElementById("audioNote").innerText = "Audio link not available for this track. Try another song.";
+    return;
+  }
+
+  document.getElementById("audioNote").innerText = "";
+  audioEl.src = audio;
+  audioEl.play();
+  playBtn.innerText = "❚❚";
+}
+
+function togglePlay(){
+  const audioEl = document.getElementById("ashplexAudio");
+  const playBtn = document.getElementById("mainPlayBtn");
+
+  if(!audioEl.src){
+    document.getElementById("audioNote").innerText = "Select a song first.";
+    return;
+  }
+
+  if(audioEl.paused){
+    audioEl.play();
+    playBtn.innerText = "❚❚";
+  }else{
+    audioEl.pause();
+    playBtn.innerText = "▶";
+  }
+}
+
+function seekAudio(e){
+  const audioEl = document.getElementById("ashplexAudio");
+  if(!audioEl.duration) return;
+  const rect = e.currentTarget.getBoundingClientRect();
+  const ratio = (e.clientX - rect.left) / rect.width;
+  audioEl.currentTime = ratio * audioEl.duration;
+}
+
+function updateProgress(){
+  const audioEl = document.getElementById("ashplexAudio");
+  const fill = document.getElementById("progressFill");
+  if(audioEl.duration){
+    fill.style.width = ((audioEl.currentTime / audioEl.duration) * 100) + "%";
+  }
+}
+
+function skip(seconds){
+  const audioEl = document.getElementById("ashplexAudio");
+  if(audioEl.duration){
+    audioEl.currentTime = Math.max(0, Math.min(audioEl.duration, audioEl.currentTime + seconds));
+  }
+}
+
 function shareSong(name){
   if(navigator.share){
     navigator.share({title:name, text:"Listen on ASHPLEX", url:window.location.href});
@@ -230,7 +316,7 @@ function shareSong(name){
   <div class="hero">
     <div>
       <h1>Your Mood.<br>Your Music.<br>Your World.</h1>
-      <p>AI-powered Hindi music platform with full playlists, real covers, mood suggestions, rewards and premium UI.</p>
+      <p>AI-powered Hindi music platform with in-app playback, playlist covers, mood suggestions, rewards and premium UI.</p>
       <div class="hero-buttons">
         <a class="btn play" href="#trending">▶ Play</a>
         <a class="btn explore" href="#moods">🤖 Mood AI</a>
@@ -258,7 +344,7 @@ function shareSong(name){
   <div class="section" id="playlists">
     <div class="section-title">
       <h2>🎵 Full Playlists</h2>
-      <span>Click any playlist to open full songs</span>
+      <span>Click playlist to load songs</span>
     </div>
     <div class="playlist-row">
       {% for p in playlists %}
@@ -280,12 +366,12 @@ function shareSong(name){
       {% for song in songs %}
       <div class="card">
         <img src="{{ song.image }}">
-        <a class="play-btn" href="{{ song.youtube }}" target="_blank" style="color:white;text-decoration:none">▶</a>
+        <button class="play-btn" onclick='playSong({{ song.name|tojson }}, {{ song.artist|tojson }}, {{ song.image|tojson }}, {{ song.audio|tojson }})'>▶</button>
         <h3>{{ song.name }}</h3>
         <p>{{ song.artist }}</p>
         <div class="actions">
           <button>❤️</button>
-          <button onclick="shareSong('{{ song.name }}')">📤</button>
+          <button onclick="shareSong({{ song.name|tojson }})">📤</button>
           <button>➕</button>
         </div>
       </div>
@@ -298,18 +384,25 @@ function shareSong(name){
 
 <div class="player">
   <div class="now">
-    <img src="{{ songs[0].image }}">
+    <img id="playerImage" src="{{ songs[0].image }}">
     <div>
-      <div class="song-name">{{ songs[0].name }}</div>
-      <div class="artist">{{ songs[0].artist }}</div>
+      <div id="playerTitle" class="song-name">{{ songs[0].name }}</div>
+      <div id="playerArtist" class="artist">{{ songs[0].artist }}</div>
+      <div id="audioNote" class="audio-note"></div>
     </div>
   </div>
   <div class="center">
-    <div class="controls">⏮ <div class="big">❚❚</div> ⏭</div>
-    <div class="bar"><div></div></div>
+    <div class="controls">
+      <button class="control-btn" onclick="skip(-10)">⏮</button>
+      <button id="mainPlayBtn" class="big" onclick="togglePlay()">▶</button>
+      <button class="control-btn" onclick="skip(10)">⏭</button>
+    </div>
+    <div class="bar" onclick="seekAudio(event)"><div id="progressFill"></div></div>
   </div>
-  <div class="right">🔊 Volume</div>
+  <div class="right">🔊 In-app Audio</div>
 </div>
+
+<audio id="ashplexAudio" ontimeupdate="updateProgress()" onended="document.getElementById('mainPlayBtn').innerText='▶'"></audio>
 
 <div class="mobile-nav">
   <a href="/">🏠<br>Home</a>
