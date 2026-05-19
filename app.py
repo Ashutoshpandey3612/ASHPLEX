@@ -196,7 +196,7 @@ def get_youtube_video(query="arijit song"):
             "video_id": video_id,
             "title": title,
             "channel": channel,
-            "embed_url": f"https://www.youtube.com/embed/{video_id}?autoplay=1&rel=0",
+            "embed_url": f"https://www.youtube.com/embed/{video_id}?autoplay=1&rel=0&enablejsapi=1&controls=0&modestbranding=1",
             "watch_url": f"https://www.youtube.com/watch?v={video_id}"
         }
     except Exception as e:
@@ -454,7 +454,7 @@ body{min-height:100vh;background:#08080b;color:var(--text);font-family:-apple-sy
 {% for s in songs %}
 <div class="card" onclick="playSong('{{s.preview}}','{{s.title|e}}','{{s.artist|e}}','{{s.cover}}')">
 <div class="card-cover">{% if s.cover %}<img src="{{s.cover}}">{% else %}<div style="height:100%;display:flex;align-items:center;justify-content:center;font-size:35px">🎵</div>{% endif %}<div class="play-badge">▶</div></div>
-<div><h3>{{s.title}}</h3><p>{{s.artist}}</p><a class="yt-btn" href="/youtube?q={{s.title}} {{s.artist}}" onclick="event.stopPropagation()">▶ Play Full in ASHPLEX</a></div>
+<div><h3>{{s.title}}</h3><p>{{s.artist}}</p><a class="yt-btn" href="/playlist?q={{s.title}} {{s.artist}}" onclick="event.stopPropagation()">▶ Play Full in ASHPLEX</a></div>
 </div>
 {% else %}
 <p style="color:#aaa">No songs found. Try another search.</p>
@@ -500,40 +500,255 @@ YOUTUBE_HTML = """
 <!DOCTYPE html>
 <html>
 <head>
-<title>ASHPLEX YouTube Full Song</title>
+<title>ASHPLEX Player</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
-*{box-sizing:border-box}
-body{margin:0;background:linear-gradient(180deg,#181820,#08080b 45%,#000);color:white;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif}
-.page{min-height:100vh;padding:28px}.header{display:flex;justify-content:space-between;gap:18px;align-items:center;margin-bottom:24px}.logo h1{margin:0;font-size:34px}.logo p{color:#aaa;margin-top:6px}.search{display:flex;gap:10px;max-width:620px;width:100%}.search input{flex:1;padding:14px;border-radius:18px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.08);color:white}.btn{padding:13px 20px;border:0;border-radius:999px;background:#fa233b;color:white;text-decoration:none;font-weight:800;cursor:pointer}.card{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.10);border-radius:28px;padding:20px}iframe{width:100%;height:520px;border:0;border-radius:22px;background:#000}.note{color:#aaa;margin:14px 0;line-height:1.5}
-@media(max-width:800px){.header{display:block}.search{margin-top:16px}iframe{height:280px}.page{padding:16px}}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  min-height:100vh;
+  background:
+    radial-gradient(circle at 20% 0%,rgba(250,35,59,.30),transparent 30%),
+    radial-gradient(circle at 75% 0%,rgba(83,60,255,.22),transparent 32%),
+    linear-gradient(180deg,#171820,#07070b 58%,#000);
+  color:white;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;
+}
+.page{min-height:100vh;padding:24px}
+.header{
+  max-width:1180px;
+  margin:0 auto 22px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:18px;
+}
+.logo h1{font-size:30px;letter-spacing:-.6px}
+.logo p{color:#aaa;margin-top:6px}
+.search{display:flex;gap:10px;width:min(560px,100%)}
+.search input{
+  flex:1;padding:14px 18px;border-radius:999px;border:1px solid rgba(255,255,255,.12);
+  background:rgba(255,255,255,.09);color:white;outline:none;
+}
+.btn{border:0;border-radius:999px;background:#fa233b;color:white;padding:13px 20px;font-weight:800;text-decoration:none;cursor:pointer;white-space:nowrap}
+.player-card{
+  max-width:1180px;margin:0 auto;border-radius:38px;overflow:hidden;
+  background:linear-gradient(135deg,rgba(255,255,255,.14),rgba(255,255,255,.045));
+  border:1px solid rgba(255,255,255,.12);box-shadow:0 35px 120px rgba(0,0,0,.58);position:relative;
+}
+.player-layout{display:grid;grid-template-columns:260px 1fr;gap:32px;align-items:center;padding:32px}
+.cover-shell{
+  width:260px;height:260px;border-radius:34px;overflow:hidden;background:#000;
+  box-shadow:0 30px 90px rgba(0,0,0,.65);position:relative;
+}
+.cover-shell iframe{
+  width:100%;height:100%;border:0;transform:scale(1.62);pointer-events:none;opacity:.98;
+}
+.cover-shell:after{
+  content:"";position:absolute;left:28px;right:28px;bottom:-30px;height:65px;
+  background:#fa233b;filter:blur(40px);opacity:.35;
+}
+.badge{
+  display:inline-flex;align-items:center;gap:8px;padding:9px 14px;border-radius:999px;
+  background:rgba(250,35,59,.16);border:1px solid rgba(250,35,59,.25);
+  color:#ff9aaa;font-size:13px;font-weight:800;margin-bottom:18px;
+}
+.title{font-size:38px;line-height:1.12;letter-spacing:-1px;margin-bottom:10px}
+.channel{color:#c5c5d0;font-size:16px;margin-bottom:22px}
+.progress{display:grid;grid-template-columns:42px 1fr 48px;align-items:center;gap:12px;color:#cfcfd8;font-size:13px;margin:18px 0}
+.bar{height:7px;border-radius:999px;background:rgba(255,255,255,.16);position:relative;cursor:pointer;--p:0%}
+.bar:before{content:"";position:absolute;inset:0 auto 0 0;width:var(--p);border-radius:999px;background:#fff}
+.bar:after{content:"";position:absolute;left:var(--p);top:50%;transform:translate(-50%,-50%);width:15px;height:15px;border-radius:50%;background:#fff}
+.controls{display:flex;align-items:center;justify-content:center;gap:20px;margin:22px 0}
+.ctrl{border:0;background:rgba(255,255,255,.08);color:white;width:48px;height:48px;border-radius:50%;font-size:18px;cursor:pointer}
+.mainplay{border:0;background:#fff;color:#111;width:74px;height:74px;border-radius:50%;font-size:34px;font-weight:900;cursor:pointer}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+.action{border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.08);color:white;padding:10px 14px;border-radius:999px;cursor:pointer;font-weight:700}
+.action.active{background:#fa233b;border-color:#fa233b}
+.note{margin-top:18px;color:#aaa;line-height:1.55}
+.warning{max-width:900px;margin:40px auto;padding:26px;border-radius:28px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12)}
+@media(max-width:850px){
+  .page{padding:14px 14px 100px}.header{display:block}.search{width:100%;margin-top:14px}
+  .player-card{border-radius:34px;max-width:430px}
+  .player-layout{display:block;padding:18px}
+  .cover-shell{width:100%;height:auto;aspect-ratio:1/1;margin-bottom:20px}
+  .title{font-size:24px}.mainplay{width:66px;height:66px;font-size:30px}.ctrl{width:44px;height:44px}
+}
 </style>
 </head>
 <body>
 <div class="page">
-<div class="header">
-<div class="logo"><h1>🎧 ASHPLEX Full Song Mode</h1><p>YouTube API powered embedded playback for full songs</p></div>
-<a class="btn" href="/home">Back to ASHPLEX</a>
+  <div class="header">
+    <div class="logo">
+      <h1>🎧 ASHPLEX Audio Mode</h1>
+      <p>Video is converted into compact music-player style inside ASHPLEX.</p>
+    </div>
+    <form class="search" action="/playlist">
+      <input name="q" value="{{q}}" placeholder="Search artist or song...">
+      <button class="btn">Search Playlist</button>
+    </form>
+    <a class="btn" href="/home">Back</a>
+  </div>
+
+  {% if video.ok %}
+  <div class="player-card">
+    <div class="player-layout">
+      <div class="cover-shell">
+        <iframe id="ytPlayer" src="{{video.embed_url}}" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+      </div>
+      <div>
+        <div class="badge">🎵 Now Playing inside ASHPLEX</div>
+        <h2 class="title">{{video.title}}</h2>
+        <p class="channel">{{video.channel}}</p>
+
+        <div class="progress">
+          <span id="currentTime">0:00</span>
+          <div class="bar" id="progressBar"></div>
+          <span id="durationTime">0:00</span>
+        </div>
+
+        <div class="controls">
+          <button class="ctrl" id="backBtn">⏪</button>
+          <button class="mainplay" id="playPauseBtn">Ⅱ</button>
+          <button class="ctrl" id="forwardBtn">⏩</button>
+          <button class="ctrl" id="loopBtn">🔁</button>
+        </div>
+
+        <div class="actions">
+          <button class="action" id="likeBtn">♡ Like</button>
+          <button class="action" onclick="shareSong()">📤 Share</button>
+          <button class="action" id="muteBtn">🔊 Sound</button>
+        </div>
+
+        <p class="note">YouTube policy does not allow pure audio extraction, so ASHPLEX keeps video compact like album art and gives music-player controls.</p>
+      </div>
+    </div>
+  </div>
+  {% else %}
+  <div class="warning">
+    <h2>⚠️ YouTube API setup needed</h2>
+    <p style="color:#aaa;margin:12px 0">{{video.error}}</p>
+    <p style="color:#aaa">Add YOUTUBE_API_KEY in Render Environment Variables, then redeploy.</p>
+  </div>
+  {% endif %}
 </div>
-<form class="search" action="/youtube">
-<input name="q" value="{{q}}" placeholder="Search full song...">
-<button class="btn">Search</button>
-</form>
-<p class="note">ASHPLEX uses YouTube Data API to find an exact embeddable video, then plays it inside the app.</p>
-{% if video.ok %}
-<div class="card">
-  <iframe src="{{video.embed_url}}" allow="autoplay; encrypted-media" allowfullscreen></iframe>
-  <p class="note"><b>Playing:</b> {{video.title}} · {{video.channel}}</p>
+
+<script>
+document.querySelectorAll(".title").forEach(el=>{
+  const t=document.createElement("textarea");
+  t.innerHTML=el.innerHTML;
+  el.innerText=t.value;
+});
+
+let ytPlayer;
+let loopMode=false;
+
+function fmt(sec){
+  sec=Math.max(0,Math.floor(sec||0));
+  return Math.floor(sec/60)+":"+String(sec%60).padStart(2,"0");
+}
+function updateProgress(){
+  if(!ytPlayer || !ytPlayer.getDuration) return;
+  const d=ytPlayer.getDuration();
+  const c=ytPlayer.getCurrentTime();
+  if(d>0){
+    document.getElementById("progressBar").style.setProperty("--p", ((c/d)*100)+"%");
+    document.getElementById("currentTime").innerText=fmt(c);
+    document.getElementById("durationTime").innerText=fmt(d);
+  }
+}
+function onYouTubeIframeAPIReady(){
+  ytPlayer=new YT.Player("ytPlayer",{
+    events:{
+      onReady:function(){bindControls(); setInterval(updateProgress,700);},
+      onStateChange:function(e){
+        if(e.data===YT.PlayerState.ENDED && loopMode){ytPlayer.seekTo(0,true);ytPlayer.playVideo();}
+        document.getElementById("playPauseBtn").innerText=(e.data===YT.PlayerState.PLAYING)?"Ⅱ":"▶";
+      }
+    }
+  });
+}
+function bindControls(){
+  document.getElementById("playPauseBtn").onclick=()=>{
+    const s=ytPlayer.getPlayerState();
+    if(s===YT.PlayerState.PLAYING) ytPlayer.pauseVideo(); else ytPlayer.playVideo();
+  };
+  document.getElementById("backBtn").onclick=()=>ytPlayer.seekTo(Math.max(0,ytPlayer.getCurrentTime()-10),true);
+  document.getElementById("forwardBtn").onclick=()=>ytPlayer.seekTo(Math.min(ytPlayer.getDuration(),ytPlayer.getCurrentTime()+10),true);
+  document.getElementById("loopBtn").onclick=(e)=>{loopMode=!loopMode;e.target.classList.toggle("active",loopMode);};
+  document.getElementById("muteBtn").onclick=(e)=>{ if(ytPlayer.isMuted()){ytPlayer.unMute();e.target.innerText="🔊 Sound"}else{ytPlayer.mute();e.target.innerText="🔇 Muted"} };
+  document.getElementById("likeBtn").onclick=(e)=>{e.target.classList.toggle("active");e.target.innerText=e.target.classList.contains("active")?"❤️ Liked":"♡ Like"};
+  document.getElementById("progressBar").onclick=(e)=>{
+    const r=e.target.getBoundingClientRect();
+    ytPlayer.seekTo(((e.clientX-r.left)/r.width)*ytPlayer.getDuration(),true);
+  };
+}
+function shareSong(){
+  if(navigator.share){navigator.share({title:document.querySelector(".title").innerText,text:"Listen on ASHPLEX",url:location.href});}
+  else alert("Share this link: "+location.href);
+}
+</script>
+<script src="https://www.youtube.com/iframe_api"></script>
+</body>
+</html>
+"""
+
+
+
+PLAYLIST_HTML = """
+<!DOCTYPE html>
+<html>
+<head>
+<title>ASHPLEX Playlist</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{min-height:100vh;background:radial-gradient(circle at top,#22162a,#07070b 58%,#000);color:white;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif}
+.page{padding:24px;max-width:1180px;margin:auto}
+.header{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:26px}
+h1{font-size:36px}.muted{color:#aaa;margin-top:6px}
+.search{display:flex;gap:10px;width:min(560px,100%)}
+.search input{flex:1;padding:14px 18px;border-radius:999px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.09);color:white;outline:none}
+.btn{border:0;border-radius:999px;background:#fa233b;color:white;padding:13px 20px;font-weight:800;text-decoration:none;cursor:pointer;white-space:nowrap}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:18px}
+.card{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.10);border-radius:24px;padding:14px;text-decoration:none;color:white;transition:.25s}
+.card:hover{transform:translateY(-6px);background:rgba(255,255,255,.11)}
+.card img{width:100%;aspect-ratio:16/10;object-fit:cover;border-radius:18px;margin-bottom:12px;background:#111}
+.card h3{font-size:16px;line-height:1.25;margin-bottom:6px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.card p{color:#aaa;font-size:13px}
+@media(max-width:850px){.page{padding:16px}.header{display:block}.search{width:100%;margin-top:16px}.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="header">
+    <div>
+      <h1>🎵 ASHPLEX Playlist</h1>
+      <p class="muted">Search result playlist for: <b>{{q}}</b></p>
+    </div>
+    <form class="search" action="/playlist">
+      <input name="q" value="{{q}}" placeholder="Search artist or song...">
+      <button class="btn">Search</button>
+    </form>
+    <a class="btn" href="/home">Home</a>
+  </div>
+
+  <div class="grid">
+    {% for v in videos %}
+    <a class="card" href="/youtube?q={{v.title}}">
+      <img src="{{v.thumbnail}}">
+      <h3>{{v.title}}</h3>
+      <p>{{v.channel}}</p>
+    </a>
+    {% else %}
+    <p class="muted">No playlist found. Check YouTube API key.</p>
+    {% endfor %}
+  </div>
 </div>
-{% else %}
-<div class="card">
-  <h2>⚠️ YouTube API setup needed</h2>
-  <p class="note">{{video.error}}</p>
-  <p class="note">Add YOUTUBE_API_KEY in Render Environment Variables, then redeploy.</p>
-  <a class="btn" href="{{video.watch_url}}" target="_blank">Open fallback on YouTube</a>
-</div>
-{% endif %}
-</div>
+<script>
+document.querySelectorAll("h3").forEach(el=>{
+  const t=document.createElement("textarea");t.innerHTML=el.innerHTML;el.innerText=t.value;
+});
+</script>
 </body>
 </html>
 """
@@ -622,6 +837,52 @@ h1{margin:0 0 10px}.big{font-size:48px;color:#ff8a98;font-weight:800}.muted{colo
 </html>
 """
 
+def get_youtube_playlist(query="arijit songs", max_results=12):
+    """
+    Uses YouTube Data API v3 to show playlist/list results for artist search.
+    It returns multiple embeddable videos instead of directly auto-opening one song.
+    """
+    if not YOUTUBE_API_KEY:
+        return []
+
+    try:
+        url = "https://www.googleapis.com/youtube/v3/search"
+        params = {
+            "part": "snippet",
+            "q": query + " songs",
+            "type": "video",
+            "maxResults": max_results,
+            "videoEmbeddable": "true",
+            "safeSearch": "none",
+            "key": YOUTUBE_API_KEY
+        }
+        data = requests.get(url, params=params, timeout=10).json()
+        items = data.get("items", [])
+
+        results = []
+        for item in items:
+            vid = item.get("id", {}).get("videoId", "")
+            snip = item.get("snippet", {})
+            if not vid:
+                continue
+            thumb = (
+                snip.get("thumbnails", {}).get("high", {}).get("url")
+                or snip.get("thumbnails", {}).get("medium", {}).get("url")
+                or snip.get("thumbnails", {}).get("default", {}).get("url")
+                or ""
+            )
+            results.append({
+                "video_id": vid,
+                "title": snip.get("title", "Unknown Song"),
+                "channel": snip.get("channelTitle", "YouTube"),
+                "thumbnail": thumb,
+                "embed_url": f"https://www.youtube.com/embed/{vid}?autoplay=1&rel=0&enablejsapi=1&controls=0&modestbranding=1"
+            })
+        return results
+    except Exception:
+        return []
+
+
 @app.route("/")
 def login():
     return LOGIN_HTML
@@ -697,6 +958,18 @@ def youtube_mode():
         q=q,
         video=video
     )
+
+@app.route("/playlist")
+@login_required
+def playlist_mode():
+    q = request.args.get("q", "arijit songs")
+    videos = get_youtube_playlist(q, 12)
+    return render_template_string(
+        PLAYLIST_HTML,
+        q=q,
+        videos=videos
+    )
+
 
 
 @app.route("/developer")
