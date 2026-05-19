@@ -310,6 +310,7 @@ h1{font-size:36px;margin:0 0 4px}.tag{color:#b8b8c6;font-size:13px;margin-bottom
 input{width:100%;padding:14px;margin:8px 0;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.08);border-radius:16px;color:white}
 button{width:100%;padding:14px;margin-top:12px;border:0;background:#fa233b;color:white;border-radius:18px;font-weight:800;cursor:pointer}
 a{color:#ff8a98}.small{font-size:12px;color:#aaa;margin-top:14px;line-height:1.6}
+.chip{background:rgba(255,255,255,.08);color:white;text-decoration:none;border:1px solid rgba(255,255,255,.12);padding:9px 13px;border-radius:999px;font-weight:800}.chip:hover{background:#fa233b}
 </style>
 </head>
 <body>
@@ -329,6 +330,16 @@ Developer: ashutosh / Ashplex@123<br>
 New customer? <a href="/register">Create account</a>
 </div>
 </div>
+
+<script>
+function openMoodPlaylist(selectEl){
+  const mood = selectEl.value;
+  if(mood){
+    window.location.href = "/mood?mood=" + encodeURIComponent(mood);
+  }
+}
+</script>
+
 </body>
 </html>
 """
@@ -424,11 +435,23 @@ body{min-height:100vh;background:#08080b;color:var(--text);font-family:-apple-sy
 </section>
 
 <div class="mood-ai-box">
-<div class="mood-ai-head"><h3>🤖 AI Mood Level Recommendation</h3><div class="ai-badge">Mood + Level → Deezer search</div></div>
+<div class="mood-ai-head"><h3>🤖 AI Mood Level Recommendation
+<div class="teacher-demo" style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap">
+  <a class="chip" href="/mood?mood=trending">🔥 Trending</a>
+  <a class="chip" href="/mood?mood=happy">😊 Happy</a>
+  <a class="chip" href="/mood?mood=sad">💔 Sad</a>
+  <a class="chip" href="/mood?mood=romantic">❤️ Romantic</a>
+  <a class="chip" href="/mood?mood=focus">🎯 Focus</a>
+  <a class="chip" href="/mood?mood=relax">🌙 Relax</a>
+  <a class="chip" href="/mood?mood=workout">💪 Workout</a>
+  <a class="chip" href="/mood?mood=angry">⚡ Angry</a>
+</div>
+<!-- Teacher Demo Mood Buttons -->
+</h3><div class="ai-badge">Mood + Level → Deezer search</div></div>
 <form class="mood-ai-form" action="/home">
 <div>
 <label>Select Mood</label>
-<select name="mood">
+<select name="mood" onchange="openMoodPlaylist(this)">
 <option value="trending">Trending</option><option value="happy">Happy</option><option value="sad">Sad</option><option value="romantic">Romantic</option><option value="focus">Focus</option><option value="relax">Relax</option><option value="workout">Workout</option><option value="angry">Angry</option>
 </select>
 </div>
@@ -723,7 +746,7 @@ h1{font-size:36px}.muted{color:#aaa;margin-top:6px}
   <div class="header">
     <div>
       <h1>🎵 ASHPLEX Playlist</h1>
-      <p class="muted">Search result playlist for: <b>{{q}}</b></p>
+      <p class="muted">Search result playlist for: <b>{{q}}</b></p><p class="muted">Teacher demo: select any mood, then click a song card to play it inside ASHPLEX.</p>
     </div>
     <form class="search" action="/playlist">
       <input name="q" value="{{q}}" placeholder="Search artist or song...">
@@ -836,6 +859,21 @@ h1{margin:0 0 10px}.big{font-size:48px;color:#ff8a98;font-weight:800}.muted{colo
 </body>
 </html>
 """
+
+
+MOOD_PLAYLIST_QUERIES = {
+    "trending": "90s hindi bollywood hit songs Kumar Sanu Udit Narayan Alka Yagnik",
+    "happy": "90s hindi happy songs Udit Narayan Abhijeet Alka Yagnik",
+    "sad": "90s hindi sad songs Kumar Sanu Sonu Nigam Anuradha Paudwal",
+    "romantic": "90s hindi romantic songs Kumar Sanu Alka Yagnik Udit Narayan",
+    "focus": "old hindi lofi relaxing instrumental songs",
+    "relax": "90s hindi soft relaxing songs Anuradha Paudwal Sadhana Sargam",
+    "workout": "90s bollywood dance workout songs Udit Narayan Alka Yagnik",
+    "angry": "bollywood energetic attitude songs 90s"
+}
+
+def mood_to_query(mood):
+    return MOOD_PLAYLIST_QUERIES.get((mood or "trending").lower(), MOOD_PLAYLIST_QUERIES["trending"])
 
 def get_youtube_playlist(query="arijit songs", max_results=12):
     """
@@ -957,6 +995,19 @@ def youtube_mode():
         YOUTUBE_HTML,
         q=q,
         video=video
+    )
+
+
+@app.route("/mood")
+@login_required
+def mood_mode():
+    mood = request.args.get("mood", "trending")
+    q = mood_to_query(mood)
+    videos = get_youtube_playlist(q, 12)
+    return render_template_string(
+        PLAYLIST_HTML,
+        q=f"{mood.title()} Mood - {q}",
+        videos=videos
     )
 
 @app.route("/playlist")
