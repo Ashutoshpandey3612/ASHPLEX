@@ -160,6 +160,8 @@ p{color:#cfcfd8;font-size:17px;line-height:1.65}
     line-height:1.7;
 }
 
+
+@media(max-width:850px){.pro-ai-wrap{padding:20px;border-radius:28px}.pro-ai-left{align-items:flex-start}.ai-orb{width:62px;height:62px;font-size:24px}.pro-ai-left h2{font-size:25px}.pro-ai-left p{font-size:14px}.pro-mood-grid{grid-template-columns:1fr 1fr;gap:14px}.mood-card{min-height:145px;padding:18px 12px}.mood-emoji{width:56px;height:56px;font-size:27px;margin-bottom:12px}.mood-card h3{font-size:16px}.mood-card p{font-size:12px}.pro-ai-controls{grid-template-columns:1fr}.pro-ai-footer{font-size:14px}.pro-ai-footer:before,.pro-ai-footer:after{display:none}}
 </style>
 </head>
 <body>
@@ -660,7 +662,7 @@ body{min-height:100vh;background:#08080b;color:var(--text);font-family:-apple-sy
 .topbar{display:flex;justify-content:space-between;align-items:center;gap:18px;margin-bottom:28px}.search{flex:1;max-width:520px;position:relative}.search input{width:100%;padding:14px 18px;border:0;outline:none;border-radius:18px;color:white;background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.10)}.user-pill{padding:11px 16px;border-radius:18px;background:rgba(255,255,255,.08);color:#ddd;font-size:14px}
 .hero{display:grid;grid-template-columns:250px 1fr;gap:30px;align-items:end;min-height:300px;padding:28px;border-radius:34px;background:linear-gradient(135deg,rgba(255,255,255,.14),rgba(255,255,255,.04)),radial-gradient(circle at top right,rgba(250,35,59,.42),transparent 40%);border:1px solid rgba(255,255,255,.12);box-shadow:0 28px 90px rgba(0,0,0,.35);margin-bottom:28px}.hero-cover{width:250px;height:250px;border-radius:30px;overflow:hidden;box-shadow:0 25px 70px rgba(0,0,0,.55);background:#222}.hero-cover img{width:100%;height:100%;object-fit:cover}.hero h1{font-size:64px;line-height:.95;letter-spacing:-2px;margin-bottom:12px}.hero p{color:#d5d5df;font-size:16px;margin-bottom:22px}.eyebrow{color:var(--red2);text-transform:uppercase;font-size:12px;font-weight:800;letter-spacing:1.6px;margin-bottom:10px}
 .btn{display:inline-flex;align-items:center;justify-content:center;border:0;text-decoration:none;color:white;font-weight:750;padding:13px 22px;border-radius:999px;background:var(--red);cursor:pointer}.btn.secondary{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.12)}
-.mood-ai-box{margin:0 0 24px;padding:18px;border-radius:24px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.10);backdrop-filter:blur(20px)}.mood-ai-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px}.mood-ai-head h3{font-size:18px}.ai-badge{font-size:12px;color:#ffb3bd;background:rgba(250,35,59,.16);padding:7px 11px;border-radius:999px}.mood-ai-form{display:grid;grid-template-columns:1fr 1fr auto;gap:12px;align-items:end}.mood-ai-form label{display:block;color:var(--muted);font-size:12px;margin-bottom:6px}.mood-ai-form select{width:100%;padding:13px 14px;border:0;outline:none;border-radius:16px;color:white;background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.10)}
+.pro-ai-wrap{margin:0 0 28px;padding:30px;border-radius:34px;background:radial-gradient(circle at 12% 12%,rgba(236,72,153,.20),transparent 22%),radial-gradient(circle at 86% 8%,rgba(124,58,237,.18),transparent 26%),linear-gradient(135deg,rgba(20,26,38,.92),rgba(8,11,18,.96));border:1px solid rgba(255,255,255,.12);box-shadow:0 28px 90px rgba(0,0,0,.50);overflow:hidden}.pro-ai-top{display:flex;justify-content:space-between;align-items:center;gap:20px;margin-bottom:28px;flex-wrap:wrap}.pro-ai-left{display:flex;align-items:center;gap:18px}.ai-orb{width:78px;height:78px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:34px;background:linear-gradient(135deg,#ec4899,#7c3aed,#0ea5e9);box-shadow:0 0 36px rgba(236,72,153,.35);position:relative}.ai-orb:after{content:"";position:absolute;inset:9px;border-radius:50%;border:1px solid rgba(255,255,255,.25)}.pro-ai-left h2{font-size:36px;letter-spacing:-.8px;margin-bottom:7px}.pro-ai-left p{color:#c8c8d4;font-size:16px}.ai-powered{padding:12px 20px;border-radius:999px;background:rgba(168,85,247,.14);color:#d8b4fe;border:1px solid rgba(168,85,247,.30);font-weight:850;box-shadow:0 0 28px rgba(168,85,247,.20)}.pro-mood-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(165px,1fr));gap:18px}.mood-card{min-height:180px;text-decoration:none;color:white;padding:22px 18px;border-radius:24px;background:linear-gradient(180deg,rgba(255,255,255,.075),rgba(255,255,255,.035));border:1px solid rgba(255,255,255,.12);transition:.25s;position:relative;overflow:hidden;display:flex;flex-direction:column;justify-content:center}.mood-card:before{content:"";position:absolute;inset:auto 24px 0 24px;height:5px;border-radius:999px;background:var(--accent,#ff2d55);box-shadow:0 0 18px var(--accent,#ff2d55)}.mood-card:after{content:"";position:absolute;width:95px;height:95px;border-radius:50%;top:22px;left:50%;transform:translateX(-50%);background:var(--accent,#ff2d55);opacity:.10;filter:blur(8px)}.mood-card:hover{transform:translateY(-8px);background:linear-gradient(180deg,rgba(255,255,255,.11),rgba(255,255,255,.055));border-color:var(--accent,#ff2d55);box-shadow:0 20px 60px rgba(0,0,0,.35)}.mood-emoji{width:72px;height:72px;margin:0 auto 18px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:34px;background:rgba(0,0,0,.22);border:1px solid var(--accent,#ff2d55);box-shadow:0 0 30px rgba(0,0,0,.22);position:relative;z-index:1}.mood-card h3{font-size:20px;margin-bottom:8px;text-align:center;position:relative;z-index:1}.mood-card p{color:#c9c9d3;text-align:center;font-size:14px;position:relative;z-index:1}.trending{--accent:#ff2d55}.viral{--accent:#8b5cf6}.new{--accent:#3b82f6}.classic{--accent:#2dd4bf}.happy{--accent:#facc15}.sad{--accent:#a855f7}.romantic{--accent:#fb7185}.focus{--accent:#38bdf8}.relax{--accent:#34d399}.workout{--accent:#fb923c}.angry{--accent:#ef4444}.pro-ai-footer{display:flex;align-items:center;justify-content:center;gap:16px;margin-top:28px;color:#d8d2ff;font-size:16px}.pro-ai-footer:before,.pro-ai-footer:after{content:"";height:1px;max-width:260px;flex:1;background:linear-gradient(90deg,transparent,rgba(255,255,255,.22),transparent)}.pro-ai-controls{display:grid;grid-template-columns:1fr 1fr auto;gap:12px;align-items:end;margin-top:24px;padding:18px;border-radius:24px;background:rgba(255,255,255,.055);border:1px solid rgba(255,255,255,.08)}.pro-ai-controls label{display:block;color:#aaa;font-size:12px;margin-bottom:7px;font-weight:750}.pro-ai-controls select{width:100%;padding:14px 15px;border:0;outline:none;border-radius:16px;color:white;background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.10)}
 .hybrid-box{margin:0 0 24px;padding:18px;border-radius:24px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.10)}.source-badge{display:inline-block;margin-top:8px;padding:6px 10px;border-radius:999px;background:rgba(250,35,59,.16);color:#ffb3bd;font-size:12px;text-decoration:none}
 .section-row{display:flex;align-items:center;justify-content:space-between;margin:10px 0 16px}.section-row h2{font-size:26px}.section-row span{color:var(--muted)}
 .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(165px,1fr));gap:20px}.card{background:rgba(255,255,255,.065);border:1px solid rgba(255,255,255,.08);border-radius:22px;padding:14px;transition:.25s;cursor:pointer}.card:hover{transform:translateY(-7px);background:rgba(255,255,255,.10);box-shadow:0 22px 55px rgba(0,0,0,.35)}.card-cover{width:100%;aspect-ratio:1/1;border-radius:18px;overflow:hidden;background:#222;margin-bottom:12px;position:relative}.card-cover img{width:100%;height:100%;object-fit:cover}.play-badge{position:absolute;right:10px;bottom:10px;width:42px;height:42px;border-radius:50%;background:var(--red);display:flex;align-items:center;justify-content:center;opacity:0;transition:.2s}.card:hover .play-badge{opacity:1}.card h3{font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:5px}.card p{color:var(--muted);font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.yt-btn{display:inline-flex;margin-top:10px;padding:8px 11px;border-radius:999px;background:#ff0033;color:white;text-decoration:none;font-size:12px;font-weight:800}
@@ -710,38 +712,49 @@ body{min-height:100vh;background:#08080b;color:var(--text);font-family:-apple-sy
 </div>
 </section>
 
-<div class="mood-ai-box">
-<div class="mood-ai-head"><h3>🤖 AI Mood Level Recommendation
-<div class="teacher-demo" style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap">
-  <a class="chip" href="/mood?mood=trending">🔥 Trending Now</a>
-  <a class="chip" href="/mood?mood=viral">📈 Viral Reels</a>
-  <a class="chip" href="/mood?mood=new">🆕 New Hindi</a>
-  <a class="chip" href="/mood?mood=classic90s">🎧 90s Classics</a>
-  <a class="chip" href="/mood?mood=happy">😊 Happy</a>
-  <a class="chip" href="/mood?mood=sad">💔 Sad</a>
-  <a class="chip" href="/mood?mood=romantic">❤️ Romantic</a>
-  <a class="chip" href="/mood?mood=focus">🎯 Focus</a>
-  <a class="chip" href="/mood?mood=relax">🌙 Relax</a>
-  <a class="chip" href="/mood?mood=workout">💪 Workout</a>
-  <a class="chip" href="/mood?mood=angry">⚡ Angry</a>
-</div>
-<!-- Teacher Demo Mood Buttons -->
-</h3><div class="ai-badge">Mood + Level → Deezer search</div></div>
-<form class="mood-ai-form" action="/home">
-<div>
-<label>Select Mood</label>
-<select name="mood" onchange="openMoodPlaylist(this)">
-<option value="trending">Trending Now - Latest Songs</option><option value="viral">Viral Reels Songs</option><option value="new">New Hindi Songs</option><option value="classic90s">90s Classics</option><option value="happy">Happy</option><option value="sad">Sad</option><option value="romantic">Romantic</option><option value="focus">Focus</option><option value="relax">Relax</option><option value="workout">Workout</option><option value="angry">Angry</option>
-</select>
-</div>
-<div>
-<label>Mood Level</label>
-<select name="level">
-<option value="low">Low / Soft</option><option value="medium" selected>Medium</option><option value="high">High / Intense</option>
-</select>
-</div>
-<button class="btn" type="submit">Generate Mix</button>
-</form>
+<div class="pro-ai-wrap">
+  <div class="pro-ai-top">
+    <div class="pro-ai-left">
+      <div class="ai-orb">▮▮▮</div>
+      <div>
+        <h2>AI Mood Level Recommendation ✨</h2>
+        <p>Smart music picks based on your mood and vibe</p>
+      </div>
+    </div>
+    <div class="ai-powered">✨ AI Powered</div>
+  </div>
+
+  <div class="pro-mood-grid">
+    <a href="/mood?mood=trending" class="mood-card trending"><div class="mood-emoji">📈</div><h3>Trending Now</h3><p>Top trending hits</p></a>
+    <a href="/mood?mood=viral" class="mood-card viral"><div class="mood-emoji">🎬</div><h3>Viral Reels</h3><p>Viral hits</p></a>
+    <a href="/mood?mood=new" class="mood-card new"><div class="mood-emoji">🆕</div><h3>New Hindi</h3><p>Latest releases</p></a>
+    <a href="/mood?mood=classic90s" class="mood-card classic"><div class="mood-emoji">🎧</div><h3>90s Classics</h3><p>Timeless classics</p></a>
+    <a href="/mood?mood=happy" class="mood-card happy"><div class="mood-emoji">😊</div><h3>Happy</h3><p>Feel good vibes</p></a>
+    <a href="/mood?mood=sad" class="mood-card sad"><div class="mood-emoji">💔</div><h3>Sad</h3><p>Heartfelt songs</p></a>
+    <a href="/mood?mood=romantic" class="mood-card romantic"><div class="mood-emoji">❤️</div><h3>Romantic</h3><p>Love & romance</p></a>
+    <a href="/mood?mood=focus" class="mood-card focus"><div class="mood-emoji">🎯</div><h3>Focus</h3><p>Concentration</p></a>
+    <a href="/mood?mood=relax" class="mood-card relax"><div class="mood-emoji">🌙</div><h3>Relax</h3><p>Calm & chill</p></a>
+    <a href="/mood?mood=workout" class="mood-card workout"><div class="mood-emoji">💪</div><h3>Workout</h3><p>Pump up</p></a>
+    <a href="/mood?mood=angry" class="mood-card angry"><div class="mood-emoji">⚡</div><h3>Angry</h3><p>High energy</p></a>
+  </div>
+
+  <form class="pro-ai-controls" action="/home">
+    <div>
+      <label>Select Mood</label>
+      <select name="mood" onchange="openMoodPlaylist(this)">
+        <option value="trending">Trending Now - Latest Songs</option><option value="viral">Viral Reels Songs</option><option value="new">New Hindi Songs</option><option value="classic90s">90s Classics</option><option value="happy">Happy</option><option value="sad">Sad</option><option value="romantic">Romantic</option><option value="focus">Focus</option><option value="relax">Relax</option><option value="workout">Workout</option><option value="angry">Angry</option>
+      </select>
+    </div>
+    <div>
+      <label>Mood Level</label>
+      <select name="level">
+        <option value="low">Low / Soft</option><option value="medium" selected>Medium</option><option value="high">High / Intense</option>
+      </select>
+    </div>
+    <button class="btn" type="submit">Generate Mix</button>
+  </form>
+
+  <div class="pro-ai-footer">✨ Personalized recommendations, just for you.</div>
 </div>
 
 <div class="hybrid-box">
