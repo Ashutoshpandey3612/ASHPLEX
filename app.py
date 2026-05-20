@@ -655,18 +655,80 @@ APP_HTML = """
 body{min-height:100vh;background:#08080b;color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;overflow:hidden}
 .app{width:100vw;height:100vh;display:grid;grid-template-columns:250px 1fr;grid-template-rows:1fr 92px;background:#08080b}
 .sidebar{grid-row:1/2;background:rgba(18,18,23,.96);border-right:1px solid rgba(255,255,255,.08);padding:24px 18px}
-.brand{display:flex;align-items:center;gap:16px;margin-bottom:34px;padding:14px 10px;border-radius:24px;background:linear-gradient(135deg,rgba(255,255,255,.06),rgba(255,255,255,.02));border:1px solid rgba(255,255,255,.07);box-shadow:0 18px 45px rgba(0,0,0,.28)}
-.brand-icon{width:72px;height:72px;min-width:72px;border-radius:24px;background:radial-gradient(circle at 35% 25%,rgba(255,255,255,.28),transparent 20%),linear-gradient(135deg,#ff2d55 0%,#ff137d 52%,#7c3aed 100%);display:flex;align-items:center;justify-content:center;position:relative;box-shadow:0 18px 45px rgba(255,45,85,.35), inset 0 1px 0 rgba(255,255,255,.35);overflow:hidden}
-.brand-icon:before{content:"";position:absolute;inset:8px;border-radius:19px;border:1px solid rgba(255,255,255,.16)}
-.brand-icon:after{content:"";position:absolute;left:-25%;right:-25%;bottom:6px;height:28px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.18),transparent);transform:rotate(-12deg)}
-.brand-headphone{font-size:34px;filter:drop-shadow(0 5px 10px rgba(0,0,0,.35));z-index:2}
-.brand-wave{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);display:flex;align-items:center;gap:3px;z-index:1;opacity:.95}
-.brand-wave i{display:block;width:4px;border-radius:999px;background:#fff;box-shadow:0 0 14px rgba(255,255,255,.55)}
-.brand-wave i:nth-child(1){height:13px}.brand-wave i:nth-child(2){height:25px}.brand-wave i:nth-child(3){height:38px}.brand-wave i:nth-child(4){height:25px}.brand-wave i:nth-child(5){height:13px}
-.brand-text h2{font-size:31px;line-height:1;font-weight:950;letter-spacing:-1px;text-shadow:0 8px 26px rgba(0,0,0,.35)}
-.brand-text h2 span{color:#ff2d55;text-shadow:0 0 22px rgba(255,45,85,.55)}
-.brand-text p{font-size:13px;line-height:1.35;color:#b7b7c6;margin-top:8px;font-weight:650;letter-spacing:.2px}
-@media(max-width:850px){.brand{display:none}}
+..brand{
+display:flex;
+align-items:center;
+gap:22px;
+
+```
+width:fit-content;
+max-width:100%;
+
+padding:18px 26px 18px 18px;
+margin-bottom:34px;
+
+border-radius:34px;
+
+background:
+linear-gradient(135deg,
+rgba(255,255,255,.08),
+rgba(255,255,255,.03));
+
+border:1px solid rgba(255,255,255,.08);
+
+box-shadow:
+0 20px 55px rgba(0,0,0,.35);
+
+overflow:hidden;
+```
+
+}
+
+.brand-text{
+flex:1;
+min-width:0;
+}
+
+.brand-text h2{
+font-size:58px;
+line-height:1;
+font-weight:950;
+letter-spacing:-2px;
+margin-bottom:12px;
+white-space:nowrap;
+}
+
+.brand-text h2 span{
+color:#ff2d55;
+text-shadow:0 0 18px rgba(255,45,85,.55);
+}
+
+.brand-text p{
+font-size:19px;
+color:#b8b8c6;
+line-height:1.35;
+font-weight:650;
+max-width:320px;
+}
+
+@media(max-width:850px){
+
+.brand{
+width:100%;
+gap:14px;
+padding:14px;
+}
+
+.brand-text h2{
+font-size:34px;
+}
+
+.brand-text p{
+font-size:14px;
+}
+
+}
+
 .nav-title{color:#777785;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;margin:20px 10px 8px}
 .nav a{display:flex;align-items:center;gap:12px;padding:11px 12px;color:#c9c9d3;text-decoration:none;border-radius:12px;font-size:15px;margin:3px 0}.nav a:hover,.nav a.active{background:rgba(255,255,255,.08);color:white}
 .main{overflow-y:auto;padding:26px 34px 120px;background:radial-gradient(circle at 75% -10%, rgba(250,35,59,.20), transparent 32%),linear-gradient(180deg,#181820,#09090d 45%,#000)}
