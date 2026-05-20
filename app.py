@@ -104,7 +104,7 @@ p{color:#cfcfd8;font-size:17px;line-height:1.65}
     <p>AI mood based music platform with playlist search, like/share, rewards, premium plan, and developer analytics.</p>
     <div class="actions">
       <a class="btn primary" href="/login">Continue with Mobile</a>
-      <a class="btn secondary" href="/preview">Preview App</a>
+      <a class="btn secondary" href="/home">Preview App</a>
     </div>
   </div>
   <div class="phone-preview">
@@ -128,12 +128,15 @@ LOGIN_HTML = """
 <style>
 *{box-sizing:border-box;margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif}
 body{
-  min-height:100vh;background:radial-gradient(circle at top,#2a1722,#050506 65%,#000);
+  min-height:100vh;background:
+  radial-gradient(circle at 20% 0%,rgba(250,35,59,.30),transparent 34%),
+  linear-gradient(180deg,#171820,#050506 65%,#000);
   color:white;display:flex;align-items:center;justify-content:center;padding:20px;
 }
 .box{width:min(430px,100%);background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:32px;padding:30px;box-shadow:0 30px 90px rgba(0,0,0,.5)}
 .logo{font-size:28px;font-weight:900;margin-bottom:12px}.logo span{color:#ff2d55}
-h1{font-size:32px;margin-bottom:10px}p{color:#aaa;line-height:1.5;margin-bottom:22px}
+h1{font-size:32px;margin-bottom:10px}
+p{color:#aaa;line-height:1.5;margin-bottom:22px}
 label{display:block;color:#ccc;margin-bottom:8px;font-weight:700}
 input{width:100%;padding:16px 18px;border-radius:18px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.09);color:white;outline:none;font-size:16px}
 button{width:100%;border:0;border-radius:999px;background:#ff2d55;color:white;padding:15px;margin-top:18px;font-weight:900;font-size:16px;cursor:pointer}
@@ -145,8 +148,8 @@ button{width:100%;border:0;border-radius:999px;background:#ff2d55;color:white;pa
 <div class="box">
   <div class="logo">ASH<span>PLEX</span></div>
   <h1>Login with Mobile</h1>
-  <p>Enter your mobile number. Your account data will be saved in ASHPLEX database for future login.</p>
-  <form method="POST">
+  <p>Enter your mobile number. Your account will be saved in ASHPLEX database for future login.</p>
+  <form method="POST" action="/login">
     <label>Mobile Number</label>
     <input name="phone" placeholder="Example: 9876543210" inputmode="numeric" maxlength="10" required>
     <button>Continue</button>
@@ -1015,30 +1018,46 @@ def get_youtube_playlist(query="arijit songs", max_results=12):
 
 
 @app.route("/")
-def login():
-    return LOGIN_HTML
+def landing():
+    if "user" in session:
+        return redirect("/home")
+    return render_template_string(LANDING_HTML)
 
-@app.route("/login", methods=["POST"])
-def do_login():
-    username = request.form.get("user", "").strip()
-    password = request.form.get("password", "").strip()
+@app.route("/login", methods=["GET", "POST"])
+def mobile_login():
+    if request.method == "GET":
+        return render_template_string(LOGIN_HTML, error=None)
+
+    phone = request.form.get("phone", "").strip()
+
+    if not phone.isdigit() or len(phone) != 10:
+        return render_template_string(LOGIN_HTML, error="Please enter a valid 10 digit mobile number.")
 
     con = db()
     cur = con.cursor()
-    cur.execute("SELECT * FROM users WHERE username=? AND password=?", (username, password))
+
+    cur.execute("SELECT * FROM users WHERE username=?", (phone,))
     user = cur.fetchone()
-    con.close()
 
     if not user:
-        return LOGIN_HTML.replace("Developer: ashutosh / Ashplex@123", "Wrong username or password")
+        cur.execute(
+            "INSERT INTO users(username,password,role) VALUES(?,?,?)",
+            (phone, "mobile_login", "customer")
+        )
 
-    session["user"] = user["username"]
-    session["role"] = user["role"]
-    if request.form.get("remember"):
-        session.permanent = True
+    # Ensure stats row exists
+    cur.execute(
+        "INSERT OR IGNORE INTO user_stats(username,total_plays,today_plays,total_rewards,last_reward_date,last_play_date) VALUES(?,?,?,?,?,?)",
+        (phone, 0, 0, 0, "", "")
+    )
 
-    if user["role"] == "developer":
-        return redirect("/developer")
+    con.commit()
+    con.close()
+
+    session["user"] = phone
+    session["role"] = "customer"
+    session.permanent = True
+
     return redirect("/home")
 
 @app.route("/register", methods=["GET", "POST"])
