@@ -138,6 +138,21 @@ LANDING_HTML = """
 <!DOCTYPE html>
 <html>
 <head>
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#ff2d55">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="ASHPLEX">
+<link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/727/727240.png">
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/service-worker.js').catch(() => {});
+  });
+}
+</script>
+
 <title>ASHPLEX</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
@@ -219,6 +234,21 @@ LOGIN_HTML = """
 <!DOCTYPE html>
 <html>
 <head>
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#ff2d55">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="ASHPLEX">
+<link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/727/727240.png">
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/service-worker.js').catch(() => {});
+  });
+}
+</script>
+
 <title>ASHPLEX Login</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
@@ -644,6 +674,21 @@ REGISTER_HTML = """
 <!DOCTYPE html>
 <html>
 <head>
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#ff2d55">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="ASHPLEX">
+<link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/727/727240.png">
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/service-worker.js').catch(() => {});
+  });
+}
+</script>
+
 <title>ASHPLEX Register</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
@@ -675,6 +720,21 @@ APP_HTML = """
 <!DOCTYPE html>
 <html>
 <head>
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#ff2d55">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="ASHPLEX">
+<link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/727/727240.png">
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/service-worker.js').catch(() => {});
+  });
+}
+</script>
+
 <title>ASHPLEX</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
@@ -950,6 +1010,21 @@ YOUTUBE_HTML = """
 <!DOCTYPE html>
 <html>
 <head>
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#ff2d55">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="ASHPLEX">
+<link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/727/727240.png">
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/service-worker.js').catch(() => {});
+  });
+}
+</script>
+
 <title>ASHPLEX Player</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
@@ -1148,6 +1223,21 @@ PLAYLIST_HTML = """
 <!DOCTYPE html>
 <html>
 <head>
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#ff2d55">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="ASHPLEX">
+<link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/727/727240.png">
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/service-worker.js').catch(() => {});
+  });
+}
+</script>
+
 <title>ASHPLEX Playlist</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
@@ -1207,6 +1297,21 @@ DEVELOPER_HTML = """
 <!DOCTYPE html>
 <html>
 <head>
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#ff2d55">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="ASHPLEX">
+<link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/727/727240.png">
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/service-worker.js').catch(() => {});
+  });
+}
+</script>
+
 <title>ASHPLEX Developer</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
@@ -1258,6 +1363,21 @@ SUBSCRIPTION_HTML = """
 <!DOCTYPE html>
 <html>
 <head>
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#ff2d55">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="ASHPLEX">
+<link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/727/727240.png">
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/service-worker.js').catch(() => {});
+  });
+}
+</script>
+
 <title>ASHPLEX Premium</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
@@ -1323,7 +1443,22 @@ body{min-height:100vh;background:radial-gradient(circle at 20% 0%,rgba(255,45,85
 ACCOUNT_HTML = """
 <!DOCTYPE html>
 <html>
-<head><title>ASHPLEX Account</title><meta name="viewport" content="width=device-width, initial-scale=1.0"><style>
+<head>
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#ff2d55">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="ASHPLEX">
+<link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/727/727240.png">
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/service-worker.js').catch(() => {});
+  });
+}
+</script>
+<title>ASHPLEX Account</title><meta name="viewport" content="width=device-width, initial-scale=1.0"><style>
 body{margin:0;min-height:100vh;background:#08080b;color:white;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;display:flex;align-items:center;justify-content:center}.card{width:440px;background:rgba(255,255,255,.08);border-radius:24px;padding:28px}.btn{display:inline-block;margin-top:18px;padding:12px 18px;border-radius:999px;background:#fa233b;color:white;text-decoration:none;border:0;font-weight:700;cursor:pointer}.secondary{background:rgba(255,255,255,.12)}.danger{background:#b00020}.row{padding:12px 0;border-bottom:1px solid rgba(255,255,255,.08);display:flex;justify-content:space-between}</style></head>
 <body><div class="card"><h1>🎧 ASHPLEX Account</h1><p style="color:#aaa">Your account is saved in database for future login.</p><div class="row"><span>Username</span><b>{{user}}</b></div><div class="row"><span>Role</span><b>{{role}}</b></div><div class="row"><span>Premium Plan</span><b>{{plan}}</b></div><a class="btn" href="/subscription">👑 Manage Premium</a> <a class="btn secondary" href="/home">Back</a> <a class="btn secondary" href="/logout">Logout</a>{% if role != 'developer' %}<form method="POST" action="/forget-account" onsubmit="return confirm('Delete account permanently?')"><button class="btn danger">Forget / Delete My Account</button></form>{% endif %}</div></body></html>
 """
@@ -1332,6 +1467,21 @@ WALLET_HTML = """
 <!DOCTYPE html>
 <html>
 <head>
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#ff2d55">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="ASHPLEX">
+<link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/727/727240.png">
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/service-worker.js').catch(() => {});
+  });
+}
+</script>
+
 <title>ASHPLEX Rewards</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
@@ -1741,6 +1891,65 @@ def forget_account():
     con.close()
     session.clear()
     return redirect("/")
+
+
+@app.route("/manifest.json")
+def manifest():
+    return jsonify({
+        "name": "ASHPLEX - Your Mood. Your Music. Your World.",
+        "short_name": "ASHPLEX",
+        "description": "AI mood based music platform with trending songs, 90s classics, rewards and premium plans.",
+        "start_url": "/",
+        "scope": "/",
+        "display": "standalone",
+        "orientation": "portrait-primary",
+        "background_color": "#07070c",
+        "theme_color": "#ff2d55",
+        "categories": ["music", "entertainment"],
+        "icons": [
+            {
+                "src": "https://cdn-icons-png.flaticon.com/512/727/727240.png",
+                "sizes": "192x192",
+                "type": "image/png",
+                "purpose": "any maskable"
+            },
+            {
+                "src": "https://cdn-icons-png.flaticon.com/512/727/727240.png",
+                "sizes": "512x512",
+                "type": "image/png",
+                "purpose": "any maskable"
+            }
+        ]
+    })
+
+@app.route("/service-worker.js")
+def service_worker():
+    js = """
+const CACHE_NAME = 'ashplex-pwa-v1';
+const APP_SHELL = ['/', '/home', '/manifest.json'];
+
+self.addEventListener('install', event => {
+  event.waitUntil(
+    caches.open(CACHE_NAME).then(cache => cache.addAll(APP_SHELL)).catch(() => null)
+  );
+  self.skipWaiting();
+});
+
+self.addEventListener('activate', event => {
+  event.waitUntil(
+    caches.keys().then(keys => Promise.all(keys.map(key => key !== CACHE_NAME ? caches.delete(key) : null)))
+  );
+  self.clients.claim();
+});
+
+self.addEventListener('fetch', event => {
+  if (event.request.method !== 'GET') return;
+  event.respondWith(
+    fetch(event.request).catch(() => caches.match(event.request).then(resp => resp || caches.match('/')))
+  );
+});
+"""
+    return app.response_class(js, mimetype="application/javascript")
 
 @app.route("/api/play")
 def api_play():
