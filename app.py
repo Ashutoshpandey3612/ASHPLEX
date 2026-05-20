@@ -245,59 +245,59 @@ def ai_mood_query(mood="trending", level="medium"):
 
     mood_map = {
         "trending": {
-            "low": "latest hindi acoustic trending songs",
-            "medium": "latest hindi trending songs 2026 bollywood viral",
-            "high": "viral hindi dance songs 2026 trending reels"
+            "low": "arijit singh",
+            "medium": "arijit singh|vishal mishra|shreya ghoshal|bollywood hits",
+            "high": "badshah|neha kakkar|bollywood dance"
         },
         "viral": {
-            "low": "viral hindi soft reels songs",
-            "medium": "viral hindi reels songs 2026",
-            "high": "instagram viral hindi dance songs"
+            "low": "anuv jain",
+            "medium": "arijit singh|anuv jain|vishal mishra",
+            "high": "badshah|neha kakkar|bollywood dance"
         },
         "new": {
-            "low": "new hindi soft songs 2026",
-            "medium": "new hindi songs 2026 bollywood",
-            "high": "latest bollywood party songs 2026"
+            "low": "vishal mishra",
+            "medium": "vishal mishra|arijit singh|shreya ghoshal",
+            "high": "bollywood hits|badshah|neha kakkar"
         },
         "classic90s": {
-            "low": "90s hindi soft songs",
-            "medium": "90s hindi bollywood hit songs Kumar Sanu Udit Narayan Alka Yagnik",
-            "high": "90s bollywood dance hits Udit Narayan Alka Yagnik"
+            "low": "kumar sanu",
+            "medium": "kumar sanu|udit narayan|alka yagnik|sonu nigam",
+            "high": "udit narayan|alka yagnik|abhijeet"
         },
         "happy": {
-            "low": "happy acoustic hindi songs",
-            "medium": "happy bollywood hits latest",
-            "high": "party dance energetic hindi songs"
+            "low": "udit narayan",
+            "medium": "bollywood happy|udit narayan|abhijeet",
+            "high": "bollywood dance|badshah|neha kakkar"
         },
         "sad": {
-            "low": "soft sad hindi songs",
-            "medium": "sad hindi songs Arijit Singh emotional",
-            "high": "heartbreak emotional bollywood songs"
+            "low": "sonu nigam",
+            "medium": "arijit singh sad|sonu nigam|kk",
+            "high": "arijit singh heartbreak|vishal mishra"
         },
         "romantic": {
-            "low": "soft romantic hindi songs",
-            "medium": "romantic bollywood latest songs",
-            "high": "love songs passionate bollywood"
+            "low": "kumar sanu romantic",
+            "medium": "arijit singh romantic|kumar sanu|alka yagnik",
+            "high": "arijit singh|shreya ghoshal|bollywood love"
         },
         "focus": {
-            "low": "calm piano focus hindi",
-            "medium": "lofi hindi focus beats",
-            "high": "deep focus instrumental hindi"
+            "low": "lofi hindi",
+            "medium": "lofi hindi|instrumental hindi",
+            "high": "deep focus instrumental"
         },
         "relax": {
-            "low": "meditation calm hindi music",
-            "medium": "relaxing chill hindi songs",
-            "high": "chill lounge hindi music"
+            "low": "anuv jain",
+            "medium": "anuv jain|arijit singh acoustic|sonu nigam",
+            "high": "chill hindi|lofi hindi"
         },
         "workout": {
-            "low": "warmup workout hindi songs",
-            "medium": "gym workout bollywood songs",
-            "high": "high energy bollywood workout"
+            "low": "bollywood dance",
+            "medium": "badshah|bollywood dance|neha kakkar",
+            "high": "badshah|yo yo honey singh|bollywood workout"
         },
         "angry": {
-            "low": "dark chill hindi music",
-            "medium": "rock intense bollywood songs",
-            "high": "aggressive workout bollywood music"
+            "low": "bollywood rock",
+            "medium": "badshah|yo yo honey singh",
+            "high": "bollywood bass|badshah"
         }
     }
 
@@ -406,41 +406,11 @@ def youtube_cards_for_query(query="trending", max_results=12):
     except Exception:
         return []
 
-def get_deezer_songs(query="arijit"):
-    try:
-        url = f"https://api.deezer.com/search?q={quote_plus(query)}"
-        data = requests.get(url, timeout=6).json()
-
-        songs = []
-        for s in data.get("data", [])[:18]:
-            title = s.get("title", "Unknown")
-            artist = s.get("artist", {}).get("name", "Unknown")
-            cover = (
-                s.get("album", {}).get("cover_xl")
-                or s.get("album", {}).get("cover_big")
-                or s.get("album", {}).get("cover_medium", "")
-            )
-
-            songs.append({
-                "id": s.get("id"),
-                "title": title,
-                "artist": artist,
-                "cover": cover,
-                "preview": s.get("preview", ""),
-                "youtube_url": youtube_search_url(title, artist),
-                "source": "Deezer + YouTube"
-            })
-
-        if songs:
-            return songs
-
-        return fallback_songs_for_query(query)
-
-    except Exception:
-        return fallback_songs_for_query(query)
-
 
 def fallback_songs_for_query(query="trending"):
+    """
+    Final backup only. Used when Deezer and YouTube API both fail.
+    """
     q = (query or "").lower()
 
     latest = [
@@ -450,59 +420,25 @@ def fallback_songs_for_query(query="trending"):
         ("Chaleya", "Arijit Singh, Shilpa Rao"),
         ("Pehle Bhi Main", "Vishal Mishra"),
         ("O Maahi", "Arijit Singh"),
-        ("Tere Vaaste", "Varun Jain, Sachin-Jigar"),
+        ("Tere Vaaste", "Sachin-Jigar"),
         ("Apna Bana Le", "Arijit Singh"),
-        ("Kesariya", "Arijit Singh"),
-        ("Tum Kya Mile", "Arijit Singh, Shreya Ghoshal"),
-        ("Raatan Lambiyan", "Jubin Nautiyal, Asees Kaur"),
-        ("Maan Meri Jaan", "King"),
     ]
 
     classics = [
         ("Pehla Nasha", "Udit Narayan"),
         ("Tujhe Dekha To", "Kumar Sanu"),
-        ("Dheere Dheere Se", "Kumar Sanu, Anuradha Paudwal"),
-        ("Mera Dil Bhi Kitna Pagal Hai", "Kumar Sanu, Alka Yagnik"),
-        ("Ek Ladki Ko Dekha", "Kumar Sanu"),
-        ("Pardesi Pardesi", "Udit Narayan, Alka Yagnik"),
+        ("Dheere Dheere Se", "Kumar Sanu"),
         ("Chura Ke Dil Mera", "Kumar Sanu, Alka Yagnik"),
         ("Tip Tip Barsa Pani", "Udit Narayan, Alka Yagnik"),
-        ("Bahut Pyar Karte Hain", "Anuradha Paudwal"),
-        ("Aankhon Ki Gustakhiyan", "Kumar Sanu, Kavita Krishnamurthy"),
         ("Sandese Aate Hain", "Sonu Nigam"),
-        ("Main Koi Aisa Geet Gaoon", "Abhijeet"),
     ]
 
-    sad = [
-        ("Agar Tum Saath Ho", "Arijit Singh, Alka Yagnik"),
-        ("Channa Mereya", "Arijit Singh"),
-        ("Kal Ho Naa Ho", "Sonu Nigam"),
-        ("Tadap Tadap", "K.K."),
-        ("Tujhe Bhula Diya", "Mohit Chauhan"),
-        ("Phir Bhi Tumko Chaahunga", "Arijit Singh"),
-    ]
-
-    party = [
-        ("Kala Chashma", "Badshah"),
-        ("Nashe Si Chadh Gayi", "Arijit Singh"),
-        ("Kar Gayi Chull", "Badshah"),
-        ("Ghungroo", "Arijit Singh"),
-        ("Aankh Marey", "Neha Kakkar"),
-        ("Lungi Dance", "Yo Yo Honey Singh"),
-    ]
-
-    if "90s" in q or "kumar sanu" in q or "udit" in q or "classic" in q:
+    if "90s" in q or "kumar" in q or "udit" in q or "classic" in q:
         data = classics
         label = "90s Classics"
-    elif "sad" in q or "heartbreak" in q or "emotional" in q:
-        data = sad
-        label = "Sad Mood"
-    elif "party" in q or "dance" in q or "workout" in q or "viral" in q:
-        data = party
-        label = "Trending Party"
     else:
         data = latest
-        label = "Trending Now"
+        label = "Backup Playlist"
 
     songs = []
     for i, (title, artist) in enumerate(data):
@@ -516,10 +452,74 @@ def fallback_songs_for_query(query="trending"):
             "cover": svg,
             "preview": "",
             "youtube_url": youtube_search_url(title, artist),
-            "source": "Fallback + YouTube"
+            "source": "Backup + YouTube"
         })
-
     return songs
+
+
+def get_deezer_songs(query="arijit"):
+    """
+    Deezer works better with short artist/song queries.
+    If query contains '|', ASHPLEX searches multiple short queries and combines real cover cards.
+    """
+    all_songs = []
+    seen = set()
+
+    parts = [p.strip() for p in str(query).split("|") if p.strip()]
+    if not parts:
+        parts = ["arijit singh"]
+
+    for part in parts[:5]:
+        try:
+            url = f"https://api.deezer.com/search?q={quote_plus(part)}"
+            data = requests.get(url, timeout=8).json()
+
+            for s in data.get("data", [])[:8]:
+                title = s.get("title", "Unknown")
+                artist = s.get("artist", {}).get("name", "Unknown")
+                key = (title.lower(), artist.lower())
+
+                if key in seen:
+                    continue
+
+                cover = (
+                    s.get("album", {}).get("cover_xl")
+                    or s.get("album", {}).get("cover_big")
+                    or s.get("album", {}).get("cover_medium", "")
+                )
+
+                if not cover:
+                    continue
+
+                seen.add(key)
+                all_songs.append({
+                    "id": s.get("id"),
+                    "title": title,
+                    "artist": artist,
+                    "cover": cover,
+                    "preview": s.get("preview", ""),
+                    "youtube_url": youtube_search_url(title, artist),
+                    "source": "Deezer Real Cover + YouTube"
+                })
+
+                if len(all_songs) >= 18:
+                    break
+
+            if len(all_songs) >= 18:
+                break
+
+        except Exception:
+            continue
+
+    if all_songs:
+        return all_songs
+
+    # Last backup only when Deezer/network fails completely
+    youtube_songs = youtube_cards_for_query(query.replace("|", " "), 12)
+    if youtube_songs:
+        return youtube_songs
+
+    return fallback_songs_for_query(query)
 
 def update_user_activity(username):
     today = str(date.today())
@@ -770,7 +770,7 @@ body{min-height:100vh;background:#08080b;color:var(--text);font-family:-apple-sy
 
 <div class="hybrid-box">
 <h3>🔥 Teacher Demo Sections</h3>
-<p style="color:#aaa;margin:8px 0 12px">These sections use YouTube API thumbnails when Deezer has no preview, so cards look like real playlists.</p>
+<p style="color:#aaa;margin:8px 0 12px">Trending uses short Deezer-friendly searches first, so real album covers load before backup mode.</p>
 <div style="display:flex;gap:10px;flex-wrap:wrap">
   <a class="source-badge" href="/mood?mood=trending">🔥 Trending Now</a>
   <a class="source-badge" href="/mood?mood=viral">📈 Viral Reels</a>
@@ -779,7 +779,8 @@ body{min-height:100vh;background:#08080b;color:var(--text);font-family:-apple-sy
 </div>
 </div>
 
-<div class="section-row"><h2>Made For You</h2><span>{{songs|length}} tracks · {{query}}</span></div>
+<div class="hybrid-box"><h3>✅ Real cover mode</h3><p style="color:#aaa;margin-top:8px">ASHPLEX now searches short artist/song keywords on Deezer first, so real album covers appear. Backup mode runs only if API/network fails.</p></div>
+<div class="section-row"><h2>Made For You</h2><span>{{songs|length}} real cover tracks · {{query}}</span></div>
 
 <div class="grid">
 {% for s in songs %}
@@ -1170,17 +1171,17 @@ h1{margin:0 0 10px}.big{font-size:48px;color:#ff8a98;font-weight:800}.muted{colo
 
 
 MOOD_PLAYLIST_QUERIES = {
-    "trending": "latest hindi trending songs 2026 bollywood viral reels Arijit Singh Shreya Ghoshal",
-    "viral": "viral hindi reels songs 2026 bollywood trending instagram songs",
-    "new": "new hindi songs 2026 bollywood latest hits",
-    "classic90s": "90s hindi bollywood hit songs Kumar Sanu Udit Narayan Alka Yagnik",
-    "happy": "latest hindi happy songs bollywood upbeat hits",
-    "sad": "latest hindi sad songs Arijit Singh emotional bollywood",
-    "romantic": "latest hindi romantic songs Arijit Singh bollywood love songs",
-    "focus": "lofi hindi focus songs relaxing study music",
-    "relax": "relaxing hindi songs chill bollywood soft music",
-    "workout": "bollywood workout songs high energy dance hits",
-    "angry": "bollywood energetic attitude songs high bass"
+    "trending": "latest hindi songs Arijit Singh Vishal Mishra Bollywood hits",
+    "viral": "viral hindi reels songs Arijit Singh Anuv Jain",
+    "new": "new hindi songs Arijit Singh Vishal Mishra Shreya Ghoshal",
+    "classic90s": "90s hindi songs Kumar Sanu Udit Narayan Alka Yagnik Sonu Nigam",
+    "happy": "happy bollywood songs Udit Narayan Abhijeet",
+    "sad": "sad hindi songs Arijit Singh Sonu Nigam",
+    "romantic": "romantic hindi songs Arijit Singh Kumar Sanu Alka Yagnik",
+    "focus": "lofi hindi focus songs",
+    "relax": "relaxing hindi songs Anuv Jain Arijit Singh",
+    "workout": "bollywood dance workout songs Badshah Neha Kakkar",
+    "angry": "bollywood attitude songs Badshah Honey Singh"
 }
 
 def mood_to_query(mood):
