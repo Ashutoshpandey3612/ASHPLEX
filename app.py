@@ -12,7 +12,7 @@ app.secret_key = os.environ.get("SECRET_KEY", "ashplex_secret")
 app.permanent_session_lifetime = timedelta(days=30)
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DB_PATH = os.path.join(BASE_DIR, "ashplex_users.db")
+DB_PATH = os.environ.get("DATABASE_PATH", os.path.join("/tmp", "ashplex_users.db"))
 
 ADMIN_USERNAME = os.environ.get("ADMIN_USERNAME", "ashutosh")
 ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "Ashplex@123")
@@ -36,6 +36,21 @@ def init_db():
     )
     """)
 
+    cur.execute("PRAGMA table_info(users)")
+    user_cols = [row["name"] for row in cur.fetchall()]
+    required_user_cols = {"id", "username", "password", "role"}
+
+    if not required_user_cols.issubset(set(user_cols)):
+        cur.execute("DROP TABLE IF EXISTS users")
+        cur.execute("""
+        CREATE TABLE users(
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            username TEXT UNIQUE,
+            password TEXT,
+            role TEXT DEFAULT 'customer'
+        )
+        """)
+
     cur.execute("""
     CREATE TABLE IF NOT EXISTS user_stats(
         username TEXT PRIMARY KEY,
@@ -47,16 +62,39 @@ def init_db():
     )
     """)
 
+    cur.execute("PRAGMA table_info(user_stats)")
+    stat_cols = [row["name"] for row in cur.fetchall()]
+    required_stat_cols = {
+        "username",
+        "total_plays",
+        "today_plays",
+        "total_rewards",
+        "last_reward_date",
+        "last_play_date"
+    }
+
+    if not required_stat_cols.issubset(set(stat_cols)):
+        cur.execute("DROP TABLE IF EXISTS user_stats")
+        cur.execute("""
+        CREATE TABLE user_stats(
+            username TEXT PRIMARY KEY,
+            total_plays INTEGER DEFAULT 0,
+            today_plays INTEGER DEFAULT 0,
+            total_rewards INTEGER DEFAULT 0,
+            last_reward_date TEXT DEFAULT '',
+            last_play_date TEXT DEFAULT ''
+        )
+        """)
+
     cur.execute("SELECT * FROM users WHERE role='developer'")
     dev = cur.fetchone()
 
     if not dev:
         cur.execute(
-            "INSERT INTO users(username,password,role) VALUES(?,?,?)",
+            "INSERT OR IGNORE INTO users(username,password,role) VALUES(?,?,?)",
             (ADMIN_USERNAME, ADMIN_PASSWORD, "developer")
         )
     else:
-        # Keep developer login updated with current code credentials
         cur.execute(
             "UPDATE users SET username=?, password=? WHERE role='developer'",
             (ADMIN_USERNAME, ADMIN_PASSWORD)
@@ -1037,6 +1075,10 @@ def get_youtube_playlist(query="arijit songs", max_results=12):
     except Exception:
         return []
 
+
+@app.route("/health")
+def health():
+    return "OK", 200
 
 @app.route("/")
 def landing():
