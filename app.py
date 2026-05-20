@@ -142,8 +142,8 @@ p{color:#cfcfd8;font-size:17px;line-height:1.65}
     <h1>Your Mood.<br>Your Music.<br>Your World.</h1>
     <p>AI mood based music platform with playlist search, like/share, rewards, premium plan, and developer analytics.</p>
     <div class="actions">
-      <a class="btn primary" href="/login">Continue with Mobile</a>
-      <a class="btn secondary" href="/home">Preview App</a>
+      <a class="btn primary" href="/home">Open ASHPLEX</a>
+      <a class="btn secondary" href="/login">Login / Save Account</a>
     </div>
   </div>
   <div class="phone-preview">
@@ -568,15 +568,25 @@ body{min-height:100vh;background:#08080b;color:var(--text);font-family:-apple-sy
 <a href="/wallet"><span>🎁</span> Rewards</a>
 <a href="/account"><span>⚙</span> Account</a>
 <a href="/youtube?q={{query}}" ><span>▶</span> YouTube Full Mode</a>
-<a href="/logout"><span>⇥</span> Logout</a>
+{% if user %}<a href="/logout"><span>⇥</span> Logout</a>{% else %}<a href="/login"><span>🔐</span> Login / Save Account</a>{% endif %}
 </nav>
 </aside>
 
 <main class="main">
 <div class="topbar">
 <form class="search" action="/home"><input name="q" value="{{query}}" placeholder="Search Deezer preview songs..."></form>
-<div class="user-pill">Hi, {{user}} · {{role}}</div>
+<div class="user-pill">{% if user %}Hi, {{user}} · {{role}}{% else %}<a href="/login" style="color:white;text-decoration:none">Login to save your music</a>{% endif %}</div>
 </div>
+
+{% if not user %}
+<div style="margin:-8px 0 22px;padding:15px 18px;border-radius:20px;background:rgba(250,35,59,.14);border:1px solid rgba(250,35,59,.22);display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
+  <div>
+    <b>Save your ASHPLEX experience</b>
+    <p style="color:#ddd;margin-top:4px;font-size:14px">Login later with mobile OTP or Gmail to save rewards, likes and listening activity.</p>
+  </div>
+  <a class="btn" href="/login">Login Now</a>
+</div>
+{% endif %}
 
 <section class="hero">
 <div class="hero-cover">{% if songs and songs[0].cover %}<img src="{{songs[0].cover}}">{% else %}<div style="height:100%;display:flex;align-items:center;justify-content:center;font-size:52px">🎧</div>{% endif %}</div>
@@ -1201,7 +1211,6 @@ def register():
         return REGISTER_HTML.replace("Customer Registration", "Username already exists")
 
 @app.route("/home")
-@login_required
 def home():
     mood = request.args.get("mood", "trending")
     level = request.args.get("level", "medium")
@@ -1217,11 +1226,10 @@ def home():
         songs=songs,
         query=query,
         user=session.get("user"),
-        role=session.get("role")
+        role=session.get("role", "guest")
     )
 
 @app.route("/youtube")
-@login_required
 def youtube_mode():
     q = request.args.get("q", "arijit song")
     video = get_youtube_video(q)
@@ -1233,7 +1241,6 @@ def youtube_mode():
 
 
 @app.route("/mood")
-@login_required
 def mood_mode():
     mood = request.args.get("mood", "trending")
     q = mood_to_query(mood)
@@ -1245,7 +1252,6 @@ def mood_mode():
     )
 
 @app.route("/playlist")
-@login_required
 def playlist_mode():
     q = request.args.get("q", "arijit songs")
     videos = get_youtube_playlist(q, 12)
@@ -1328,8 +1334,9 @@ def forget_account():
     return redirect("/")
 
 @app.route("/api/play")
-@login_required
 def api_play():
+    if "user" not in session:
+        return jsonify({"ok": True, "guest": True, "message": "Login to save activity and rewards."})
     result = update_user_activity(session.get("user"))
     return jsonify({"ok": True, **result})
 
