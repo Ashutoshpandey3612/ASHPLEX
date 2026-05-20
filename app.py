@@ -380,6 +380,32 @@ def get_youtube_video(query="arijit song"):
             "watch_url": youtube_search_url(query=query)
         }
 
+
+def youtube_cards_for_query(query="trending", max_results=12):
+    """
+    Converts YouTube API playlist results into ASHPLEX song cards with real thumbnails.
+    This makes fallback look real instead of generated covers.
+    """
+    try:
+        videos = get_youtube_playlist(query, max_results)
+        songs = []
+        for i, v in enumerate(videos):
+            title = v.get("title", "Unknown Song")
+            channel = v.get("channel", "YouTube")
+            thumb = v.get("thumbnail", "")
+            songs.append({
+                "id": f"youtube-{i}",
+                "title": title,
+                "artist": channel,
+                "cover": thumb,
+                "preview": "",
+                "youtube_url": "/youtube?q=" + quote_plus(title),
+                "source": "YouTube API"
+            })
+        return songs
+    except Exception:
+        return []
+
 def get_deezer_songs(query="arijit"):
     try:
         url = f"https://api.deezer.com/search?q={quote_plus(query)}"
@@ -482,7 +508,7 @@ def fallback_songs_for_query(query="trending"):
     for i, (title, artist) in enumerate(data):
         safe_title = title.replace("&", "and")
         safe_artist = artist.replace("&", "and")
-        svg = f"""data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='500' height='500'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0%' stop-color='%23fa233b'/><stop offset='55%' stop-color='%2321212b'/><stop offset='100%' stop-color='%2308080b'/></linearGradient></defs><rect width='500' height='500' rx='45' fill='url(%23g)'/><circle cx='395' cy='95' r='70' fill='white' opacity='.10'/><text x='38' y='78' fill='white' font-size='28' font-family='Arial' font-weight='700'>ASHPLEX</text><text x='38' y='245' fill='white' font-size='36' font-family='Arial' font-weight='800'>{safe_title[:20]}</text><text x='38' y='295' fill='%23ffd4dc' font-size='23' font-family='Arial'>{safe_artist[:25]}</text><text x='38' y='430' fill='white' opacity='.75' font-size='22' font-family='Arial'>{label}</text></svg>"""
+        svg = f"""data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='500' height='500'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0%' stop-color='%2332323a'/><stop offset='45%' stop-color='%23181924'/><stop offset='100%' stop-color='%23060609'/></linearGradient><radialGradient id='r' cx='35%' cy='20%' r='80%'><stop offset='0%' stop-color='%23fa233b' stop-opacity='.55'/><stop offset='100%' stop-color='%23fa233b' stop-opacity='0'/></radialGradient></defs><rect width='500' height='500' rx='42' fill='url(%23g)'/><rect width='500' height='500' rx='42' fill='url(%23r)'/><circle cx='250' cy='210' r='92' fill='none' stroke='white' stroke-opacity='.18' stroke-width='16'/><circle cx='250' cy='210' r='22' fill='white' fill-opacity='.22'/><text x='38' y='360' fill='white' font-size='34' font-family='Arial' font-weight='800'>{safe_title[:20]}</text><text x='38' y='405' fill='%23cfcfd8' font-size='22' font-family='Arial'>{safe_artist[:27]}</text><text x='38' y='455' fill='%23ff9aaa' font-size='18' font-family='Arial'>{label}</text></svg>"""
         songs.append({
             "id": f"fallback-{i}",
             "title": title,
@@ -744,7 +770,7 @@ body{min-height:100vh;background:#08080b;color:var(--text);font-family:-apple-sy
 
 <div class="hybrid-box">
 <h3>🔥 Teacher Demo Sections</h3>
-<p style="color:#aaa;margin:8px 0 12px">Use these to prove ASHPLEX supports latest trending songs and 90s classics separately.</p>
+<p style="color:#aaa;margin:8px 0 12px">These sections use YouTube API thumbnails when Deezer has no preview, so cards look like real playlists.</p>
 <div style="display:flex;gap:10px;flex-wrap:wrap">
   <a class="source-badge" href="/mood?mood=trending">🔥 Trending Now</a>
   <a class="source-badge" href="/mood?mood=viral">📈 Viral Reels</a>
@@ -759,7 +785,7 @@ body{min-height:100vh;background:#08080b;color:var(--text);font-family:-apple-sy
 {% for s in songs %}
 <div class="card" onclick="playSong('{{s.preview}}','{{s.title|e}}','{{s.artist|e}}','{{s.cover}}')">
 <div class="card-cover">{% if s.cover %}<img src="{{s.cover}}">{% else %}<div style="height:100%;display:flex;align-items:center;justify-content:center;font-size:35px">🎵</div>{% endif %}<div class="play-badge">▶</div></div>
-<div><h3>{{s.title}}</h3><p>{{s.artist}}</p><a class="yt-btn" href="/playlist?q={{s.title}} {{s.artist}}" onclick="event.stopPropagation()">▶ Play Full in ASHPLEX</a></div>
+<div><h3>{{s.title}}</h3><p>{{s.artist}}</p><p style="font-size:11px;color:#ff9aaa;margin-top:4px">{{s.source}}</p><a class="yt-btn" href="/playlist?q={{s.title}} {{s.artist}}" onclick="event.stopPropagation()">▶ Open Player</a></div>
 </div>
 {% else %}
 <p style="color:#aaa">No songs found from API, but ASHPLEX fallback playlist should load automatically.</p>
