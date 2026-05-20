@@ -133,6 +133,33 @@ p{color:#cfcfd8;font-size:17px;line-height:1.65}
 .album{height:240px;border-radius:28px;background:rgba(0,0,0,.35);display:flex;align-items:center;justify-content:center;font-size:72px}
 .player{background:rgba(0,0,0,.35);border-radius:24px;padding:18px}
 @media(max-width:850px){.wrap{grid-template-columns:1fr}h1{font-size:42px}.phone-preview{min-height:310px}}
+
+.hero-banner{
+    padding:40px;
+    border-radius:28px;
+    background:linear-gradient(135deg,#121212,#1f1f1f,#2b0f18);
+    margin-bottom:30px;
+    border:1px solid rgba(255,255,255,0.08);
+    box-shadow:0 10px 40px rgba(0,0,0,0.5);
+}
+.hero-banner h1{
+    font-size:48px;
+    font-weight:800;
+    color:white;
+    margin-bottom:10px;
+}
+.hero-banner h2{
+    font-size:28px;
+    color:#ff2d55;
+    margin-bottom:14px;
+}
+.hero-banner p{
+    color:#bdbdbd;
+    font-size:17px;
+    max-width:800px;
+    line-height:1.7;
+}
+
 </style>
 </head>
 <body>
