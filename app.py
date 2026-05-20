@@ -200,16 +200,17 @@ body{
   color:white;display:flex;align-items:center;justify-content:center;padding:20px;
 }
 .box{width:min(460px,100%);background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:32px;padding:30px;box-shadow:0 30px 90px rgba(0,0,0,.5)}
-.logo{font-size:28px;font-weight:900;margin-bottom:12px}.logo span{color:#ff2d55}
+.logo{font-size:30px;font-weight:900;margin-bottom:12px}.logo span{color:#ff2d55}
 h1{font-size:32px;margin-bottom:10px}
 p{color:#aaa;line-height:1.5;margin-bottom:20px}
 label{display:block;color:#ccc;margin-bottom:8px;font-weight:700}
 input{width:100%;padding:16px 18px;border-radius:18px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.09);color:white;outline:none;font-size:16px;margin-bottom:12px}
-button,.gmail{width:100%;border:0;border-radius:999px;background:#ff2d55;color:white;padding:15px;margin-top:10px;font-weight:900;font-size:16px;cursor:pointer;text-align:center;text-decoration:none;display:block}
+button,.gmail,.guest{width:100%;border:0;border-radius:999px;background:#ff2d55;color:white;padding:15px;margin-top:10px;font-weight:900;font-size:16px;cursor:pointer;text-align:center;text-decoration:none;display:block}
 .gmail{background:white;color:#111}
+.guest{background:rgba(255,255,255,.10);color:white}
 .err{color:#ff9aaa;margin-top:12px}
-.otpbox{background:rgba(255,255,255,.08);border:1px dashed rgba(255,255,255,.18);border-radius:18px;padding:12px;margin:14px 0;color:#ffcf70}
-.small{color:#888;font-size:13px;margin-top:16px}
+.otpbox{background:rgba(255,255,255,.08);border:1px dashed rgba(255,255,255,.18);border-radius:18px;padding:12px;margin:14px 0;color:#ffcf70;line-height:1.5}
+.small{color:#888;font-size:13px;margin-top:16px;line-height:1.5}
 .divider{display:flex;align-items:center;gap:10px;margin:18px 0;color:#aaa}.divider:before,.divider:after{content:"";flex:1;height:1px;background:rgba(255,255,255,.12)}
 </style>
 </head>
@@ -217,36 +218,39 @@ button,.gmail{width:100%;border:0;border-radius:999px;background:#ff2d55;color:w
 <div class="box">
   <div class="logo">ASH<span>PLEX</span></div>
   <h1>Login to ASHPLEX</h1>
-  <p>Use mobile OTP or Gmail login. User data will be saved in ASHPLEX database.</p>
+  <p>Mobile OTP demo login ya Gmail demo login use karo. Login ke baad user database me save ho jayega.</p>
 
   {% if step == "phone" %}
   <form method="POST" action="/send-otp">
     <label>Mobile Number</label>
     <input name="phone" placeholder="Example: 9876543210" inputmode="numeric" maxlength="10" required>
-    <button>Send OTP</button>
+    <button type="submit">Send OTP</button>
   </form>
 
   <div class="divider">OR</div>
   <a class="gmail" href="/gmail-login">📧 Continue with Gmail</a>
+  <a class="guest" href="/home">Continue as Guest</a>
   {% endif %}
 
   {% if step == "otp" %}
   <form method="POST" action="/verify-otp">
     <label>Enter OTP sent to {{phone}}</label>
     <input name="otp" placeholder="Enter 6 digit OTP" inputmode="numeric" maxlength="6" required>
-    <button>Verify OTP</button>
+    <button type="submit">Verify OTP</button>
   </form>
-  <div class="otpbox">Demo OTP: <b>{{demo_otp}}</b><br>Real SMS OTP ke liye Firebase/Twilio config add karna hoga.</div>
-  <a class="gmail" href="/login">Change Number</a>
+  <div class="otpbox">
+    Demo OTP: <b>{{demo_otp}}</b><br>
+    Real SMS OTP ke liye Firebase/Twilio credentials add karne honge.
+  </div>
+  <a class="guest" href="/login">Change Number</a>
   {% endif %}
 
   {% if error %}<div class="err">{{error}}</div>{% endif %}
-  <div class="small">Note: Real OTP/Gmail OAuth needs Firebase or Google OAuth credentials. Current version shows teacher-demo flow.</div>
+  <div class="small">This is deploy-safe demo auth. Real OTP/Gmail OAuth can be added later with Firebase or Google OAuth setup.</div>
 </div>
 </body>
 </html>
 """
-
 
 def login_required(f):
     @wraps(f)
@@ -1264,6 +1268,7 @@ def health():
 
 @app.route("/")
 def landing():
+    # Direct login page nahi khulega.
     if "user" in session:
         return redirect("/home")
     return render_template_string(LANDING_HTML)
@@ -1277,15 +1282,24 @@ def send_otp():
     phone = request.form.get("phone", "").strip()
 
     if not phone.isdigit() or len(phone) != 10:
-        return render_template_string(LOGIN_HTML, error="Please enter a valid 10 digit mobile number.", step="phone")
+        return render_template_string(
+            LOGIN_HTML,
+            error="Please enter a valid 10 digit mobile number.",
+            step="phone"
+        )
 
     otp = str(random.randint(100000, 999999))
     session["pending_phone"] = phone
     session["pending_otp"] = otp
+    session.permanent = True
 
-    # Demo: OTP screen par dikhega.
-    # Real SMS ke liye Firebase/Twilio API yaha integrate hoga.
-    return render_template_string(LOGIN_HTML, error=None, step="otp", phone=phone, demo_otp=otp)
+    return render_template_string(
+        LOGIN_HTML,
+        error=None,
+        step="otp",
+        phone=phone,
+        demo_otp=otp
+    )
 
 @app.route("/verify-otp", methods=["POST"])
 def verify_otp():
@@ -1297,7 +1311,13 @@ def verify_otp():
         return redirect("/login")
 
     if otp != real_otp:
-        return render_template_string(LOGIN_HTML, error="Wrong OTP. Please try again.", step="otp", phone=phone, demo_otp=real_otp)
+        return render_template_string(
+            LOGIN_HTML,
+            error="Wrong OTP. Please try again.",
+            step="otp",
+            phone=phone,
+            demo_otp=real_otp
+        )
 
     con = db()
     cur = con.cursor()
@@ -1329,8 +1349,7 @@ def verify_otp():
 
 @app.route("/gmail-login")
 def gmail_login():
-    # Demo Gmail login flow.
-    # Real Gmail OAuth ke liye Google Cloud OAuth Client ID/Secret add karna hoga.
+    # Demo Gmail login. Real Gmail OAuth ke liye Google Cloud OAuth credentials chahiye.
     gmail_user = "demo.gmail.user@gmail.com"
 
     con = db()
