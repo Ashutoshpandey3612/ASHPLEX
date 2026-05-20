@@ -383,7 +383,7 @@ def get_youtube_video(query="arijit song"):
 def get_deezer_songs(query="arijit"):
     try:
         url = f"https://api.deezer.com/search?q={quote_plus(query)}"
-        data = requests.get(url, timeout=10).json()
+        data = requests.get(url, timeout=6).json()
 
         songs = []
         for s in data.get("data", [])[:18]:
@@ -404,9 +404,96 @@ def get_deezer_songs(query="arijit"):
                 "youtube_url": youtube_search_url(title, artist),
                 "source": "Deezer + YouTube"
             })
-        return songs
+
+        if songs:
+            return songs
+
+        return fallback_songs_for_query(query)
+
     except Exception:
-        return []
+        return fallback_songs_for_query(query)
+
+
+def fallback_songs_for_query(query="trending"):
+    q = (query or "").lower()
+
+    latest = [
+        ("Sajni", "Arijit Singh"),
+        ("Husn", "Anuv Jain"),
+        ("Heeriye", "Jasleen Royal, Arijit Singh"),
+        ("Chaleya", "Arijit Singh, Shilpa Rao"),
+        ("Pehle Bhi Main", "Vishal Mishra"),
+        ("O Maahi", "Arijit Singh"),
+        ("Tere Vaaste", "Varun Jain, Sachin-Jigar"),
+        ("Apna Bana Le", "Arijit Singh"),
+        ("Kesariya", "Arijit Singh"),
+        ("Tum Kya Mile", "Arijit Singh, Shreya Ghoshal"),
+        ("Raatan Lambiyan", "Jubin Nautiyal, Asees Kaur"),
+        ("Maan Meri Jaan", "King"),
+    ]
+
+    classics = [
+        ("Pehla Nasha", "Udit Narayan"),
+        ("Tujhe Dekha To", "Kumar Sanu"),
+        ("Dheere Dheere Se", "Kumar Sanu, Anuradha Paudwal"),
+        ("Mera Dil Bhi Kitna Pagal Hai", "Kumar Sanu, Alka Yagnik"),
+        ("Ek Ladki Ko Dekha", "Kumar Sanu"),
+        ("Pardesi Pardesi", "Udit Narayan, Alka Yagnik"),
+        ("Chura Ke Dil Mera", "Kumar Sanu, Alka Yagnik"),
+        ("Tip Tip Barsa Pani", "Udit Narayan, Alka Yagnik"),
+        ("Bahut Pyar Karte Hain", "Anuradha Paudwal"),
+        ("Aankhon Ki Gustakhiyan", "Kumar Sanu, Kavita Krishnamurthy"),
+        ("Sandese Aate Hain", "Sonu Nigam"),
+        ("Main Koi Aisa Geet Gaoon", "Abhijeet"),
+    ]
+
+    sad = [
+        ("Agar Tum Saath Ho", "Arijit Singh, Alka Yagnik"),
+        ("Channa Mereya", "Arijit Singh"),
+        ("Kal Ho Naa Ho", "Sonu Nigam"),
+        ("Tadap Tadap", "K.K."),
+        ("Tujhe Bhula Diya", "Mohit Chauhan"),
+        ("Phir Bhi Tumko Chaahunga", "Arijit Singh"),
+    ]
+
+    party = [
+        ("Kala Chashma", "Badshah"),
+        ("Nashe Si Chadh Gayi", "Arijit Singh"),
+        ("Kar Gayi Chull", "Badshah"),
+        ("Ghungroo", "Arijit Singh"),
+        ("Aankh Marey", "Neha Kakkar"),
+        ("Lungi Dance", "Yo Yo Honey Singh"),
+    ]
+
+    if "90s" in q or "kumar sanu" in q or "udit" in q or "classic" in q:
+        data = classics
+        label = "90s Classics"
+    elif "sad" in q or "heartbreak" in q or "emotional" in q:
+        data = sad
+        label = "Sad Mood"
+    elif "party" in q or "dance" in q or "workout" in q or "viral" in q:
+        data = party
+        label = "Trending Party"
+    else:
+        data = latest
+        label = "Trending Now"
+
+    songs = []
+    for i, (title, artist) in enumerate(data):
+        safe_title = title.replace("&", "and")
+        safe_artist = artist.replace("&", "and")
+        svg = f"""data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='500' height='500'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0%' stop-color='%23fa233b'/><stop offset='55%' stop-color='%2321212b'/><stop offset='100%' stop-color='%2308080b'/></linearGradient></defs><rect width='500' height='500' rx='45' fill='url(%23g)'/><circle cx='395' cy='95' r='70' fill='white' opacity='.10'/><text x='38' y='78' fill='white' font-size='28' font-family='Arial' font-weight='700'>ASHPLEX</text><text x='38' y='245' fill='white' font-size='36' font-family='Arial' font-weight='800'>{safe_title[:20]}</text><text x='38' y='295' fill='%23ffd4dc' font-size='23' font-family='Arial'>{safe_artist[:25]}</text><text x='38' y='430' fill='white' opacity='.75' font-size='22' font-family='Arial'>{label}</text></svg>"""
+        songs.append({
+            "id": f"fallback-{i}",
+            "title": title,
+            "artist": artist,
+            "cover": svg,
+            "preview": "",
+            "youtube_url": youtube_search_url(title, artist),
+            "source": "Fallback + YouTube"
+        })
+
+    return songs
 
 def update_user_activity(username):
     today = str(date.today())
@@ -666,7 +753,7 @@ body{min-height:100vh;background:#08080b;color:var(--text);font-family:-apple-sy
 </div>
 </div>
 
-<div class="section-row"><h2>Made For You</h2><span>{{songs|length}} Deezer preview tracks · {{query}}</span></div>
+<div class="section-row"><h2>Made For You</h2><span>{{songs|length}} tracks · {{query}}</span></div>
 
 <div class="grid">
 {% for s in songs %}
@@ -675,7 +762,7 @@ body{min-height:100vh;background:#08080b;color:var(--text);font-family:-apple-sy
 <div><h3>{{s.title}}</h3><p>{{s.artist}}</p><a class="yt-btn" href="/playlist?q={{s.title}} {{s.artist}}" onclick="event.stopPropagation()">▶ Play Full in ASHPLEX</a></div>
 </div>
 {% else %}
-<p style="color:#aaa">No songs found. Try another search.</p>
+<p style="color:#aaa">No songs found from API, but ASHPLEX fallback playlist should load automatically.</p>
 {% endfor %}
 </div>
 </main>
