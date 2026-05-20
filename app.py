@@ -1328,10 +1328,5 @@ def api_user_stats():
         "target": 20
     })
 
-@app.route("/logout")
-def logout():
-    session.clear()
-    return redirect("/")
-
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 8000)))
