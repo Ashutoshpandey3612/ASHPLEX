@@ -86,6 +86,34 @@ def init_db():
         )
         """)
 
+    cur.execute("""
+    CREATE TABLE IF NOT EXISTS subscriptions(
+        username TEXT PRIMARY KEY,
+        plan TEXT DEFAULT 'free',
+        amount INTEGER DEFAULT 0,
+        start_date TEXT DEFAULT '',
+        end_date TEXT DEFAULT '',
+        status TEXT DEFAULT 'inactive'
+    )
+    """)
+
+    cur.execute("PRAGMA table_info(subscriptions)")
+    sub_cols = [row["name"] for row in cur.fetchall()]
+    required_sub_cols = {"username", "plan", "amount", "start_date", "end_date", "status"}
+
+    if not required_sub_cols.issubset(set(sub_cols)):
+        cur.execute("DROP TABLE IF EXISTS subscriptions")
+        cur.execute("""
+        CREATE TABLE subscriptions(
+            username TEXT PRIMARY KEY,
+            plan TEXT DEFAULT 'free',
+            amount INTEGER DEFAULT 0,
+            start_date TEXT DEFAULT '',
+            end_date TEXT DEFAULT '',
+            status TEXT DEFAULT 'inactive'
+        )
+        """)
+
     cur.execute("SELECT * FROM users WHERE role='developer'")
     dev = cur.fetchone()
 
@@ -774,6 +802,7 @@ body{min-height:100vh;background:#08080b;color:var(--text);font-family:-apple-sy
 <a class="active" href="/home"><span>⌂</span> Listen Now</a>
 {% if role == 'developer' %}<a href="/developer"><span>⚙</span> Developer Panel</a>{% endif %}
 <a href="/wallet"><span>🎁</span> Rewards</a>
+<a href="/subscription"><span>👑</span> Premium Plans</a>
 <a href="/account"><span>⚙</span> Account</a>
 <a href="/youtube?q={{query}}" ><span>▶</span> YouTube Full Mode</a>
 {% if user %}<a href="/logout"><span>⇥</span> Logout</a>{% else %}<a href="/login"><span>🔐</span> Login / Save Account</a>{% endif %}
@@ -1224,12 +1253,79 @@ body{margin:0;background:radial-gradient(circle at top right,rgba(250,35,59,.22)
 </html>
 """
 
+
+SUBSCRIPTION_HTML = """
+<!DOCTYPE html>
+<html>
+<head>
+<title>ASHPLEX Premium</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{min-height:100vh;background:radial-gradient(circle at 20% 0%,rgba(255,45,85,.26),transparent 32%),radial-gradient(circle at 80% 8%,rgba(147,51,234,.20),transparent 34%),#07070c;color:white;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;padding:26px}
+.page{max-width:1180px;margin:auto}.top{display:flex;align-items:center;justify-content:space-between;gap:18px;margin-bottom:28px}.top h1{font-size:42px;letter-spacing:-1px}.top p{color:#b9b9c7;margin-top:8px}.back{padding:12px 18px;border-radius:999px;background:rgba(255,255,255,.10);border:1px solid rgba(255,255,255,.12);color:white;text-decoration:none;font-weight:800}
+.status{margin-bottom:24px;padding:18px 20px;border-radius:24px;background:linear-gradient(135deg,rgba(255,45,85,.16),rgba(147,51,234,.10));border:1px solid rgba(255,255,255,.10);display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}.status b{color:#ff7aa0}.status span{color:#d6d6e0}
+.plans{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}.plan{position:relative;overflow:hidden;border-radius:32px;padding:28px;background:linear-gradient(180deg,rgba(255,255,255,.09),rgba(255,255,255,.035));border:1px solid rgba(255,255,255,.12);box-shadow:0 24px 80px rgba(0,0,0,.38)}.plan.popular{border-color:#ff2d55;box-shadow:0 24px 95px rgba(255,45,85,.18)}.badge{position:absolute;top:18px;right:18px;background:#ff2d55;color:white;border-radius:999px;padding:7px 12px;font-size:12px;font-weight:900}.icon{width:64px;height:64px;border-radius:22px;background:linear-gradient(135deg,#ff2d55,#9333ea);display:flex;align-items:center;justify-content:center;font-size:30px;margin-bottom:18px;box-shadow:0 18px 50px rgba(255,45,85,.30)}.plan h2{font-size:28px;margin-bottom:10px}.price{font-size:44px;font-weight:950;margin:12px 0}.price small{font-size:16px;color:#aaa;font-weight:700}.save{color:#57f0b5;font-weight:800;margin-bottom:16px}.features{list-style:none;margin:20px 0}.features li{padding:10px 0;color:#d4d4df;border-bottom:1px solid rgba(255,255,255,.07)}.features li:before{content:"✓";color:#57f0b5;font-weight:900;margin-right:10px}.btn{width:100%;border:0;border-radius:999px;background:#ff2d55;color:white;padding:15px 18px;font-weight:950;font-size:16px;cursor:pointer;box-shadow:0 15px 45px rgba(255,45,85,.28)}.btn.secondary{background:rgba(255,255,255,.10);box-shadow:none}.note{margin-top:24px;color:#aaa;line-height:1.6;text-align:center}
+@media(max-width:900px){body{padding:16px}.top{display:block}.back{display:inline-block;margin-top:14px}.plans{grid-template-columns:1fr}.top h1{font-size:32px}.price{font-size:36px}}
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="top">
+    <div><h1>👑 ASHPLEX Premium Plans</h1><p>Choose monthly, 3 monthly, or yearly premium access.</p></div>
+    <a class="back" href="/home">← Back to Music</a>
+  </div>
+
+  <div class="status">
+    <div><b>Current Plan:</b> <span>{{current_plan}}</span></div>
+    <div><b>Status:</b> <span>{{status}}</span></div>
+    {% if end_date %}<div><b>Valid Till:</b> <span>{{end_date}}</span></div>{% endif %}
+  </div>
+
+  <div class="plans">
+    <div class="plan">
+      <div class="icon">🎧</div>
+      <h2>Monthly</h2>
+      <p style="color:#aaa">Best for quick demo and short-term use.</p>
+      <div class="price">₹99 <small>/ month</small></div>
+      <div class="save">Flexible plan</div>
+      <ul class="features"><li>Ad-free premium look</li><li>Unlimited mood playlists</li><li>Rewards tracking</li><li>Premium badge</li></ul>
+      <form method="POST" action="/subscribe"><input type="hidden" name="plan" value="monthly"><button class="btn">Choose Monthly</button></form>
+    </div>
+
+    <div class="plan popular">
+      <div class="badge">POPULAR</div>
+      <div class="icon">🔥</div>
+      <h2>3 Monthly</h2>
+      <p style="color:#aaa">Most balanced plan for regular listeners.</p>
+      <div class="price">₹249 <small>/ 3 months</small></div>
+      <div class="save">Save ₹48</div>
+      <ul class="features"><li>Everything in Monthly</li><li>Priority recommendations</li><li>Premium profile badge</li><li>Better value package</li></ul>
+      <form method="POST" action="/subscribe"><input type="hidden" name="plan" value="quarterly"><button class="btn">Choose 3 Monthly</button></form>
+    </div>
+
+    <div class="plan">
+      <div class="icon">💎</div>
+      <h2>Yearly</h2>
+      <p style="color:#aaa">Best value for long-term ASHPLEX users.</p>
+      <div class="price">₹799 <small>/ year</small></div>
+      <div class="save">Save ₹389</div>
+      <ul class="features"><li>Everything in 3 Monthly</li><li>Yearly premium access</li><li>Maximum savings</li><li>VIP premium status</li></ul>
+      <form method="POST" action="/subscribe"><input type="hidden" name="plan" value="yearly"><button class="btn">Choose Yearly</button></form>
+    </div>
+  </div>
+  <p class="note">Demo payment flow: button click karte hi plan activate hoga. Real payment ke liye Razorpay/Stripe later add kar sakte ho.</p>
+</div>
+</body>
+</html>
+"""
+
 ACCOUNT_HTML = """
 <!DOCTYPE html>
 <html>
 <head><title>ASHPLEX Account</title><meta name="viewport" content="width=device-width, initial-scale=1.0"><style>
 body{margin:0;min-height:100vh;background:#08080b;color:white;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;display:flex;align-items:center;justify-content:center}.card{width:440px;background:rgba(255,255,255,.08);border-radius:24px;padding:28px}.btn{display:inline-block;margin-top:18px;padding:12px 18px;border-radius:999px;background:#fa233b;color:white;text-decoration:none;border:0;font-weight:700;cursor:pointer}.secondary{background:rgba(255,255,255,.12)}.danger{background:#b00020}.row{padding:12px 0;border-bottom:1px solid rgba(255,255,255,.08);display:flex;justify-content:space-between}</style></head>
-<body><div class="card"><h1>🎧 ASHPLEX Account</h1><p style="color:#aaa">Your account is saved in database for future login.</p><div class="row"><span>Username</span><b>{{user}}</b></div><div class="row"><span>Role</span><b>{{role}}</b></div><a class="btn secondary" href="/home">Back</a> <a class="btn secondary" href="/logout">Logout</a>{% if role != 'developer' %}<form method="POST" action="/forget-account" onsubmit="return confirm('Delete account permanently?')"><button class="btn danger">Forget / Delete My Account</button></form>{% endif %}</div></body></html>
+<body><div class="card"><h1>🎧 ASHPLEX Account</h1><p style="color:#aaa">Your account is saved in database for future login.</p><div class="row"><span>Username</span><b>{{user}}</b></div><div class="row"><span>Role</span><b>{{role}}</b></div><div class="row"><span>Premium Plan</span><b>{{plan}}</b></div><a class="btn" href="/subscription">👑 Manage Premium</a> <a class="btn secondary" href="/home">Back</a> <a class="btn secondary" href="/logout">Logout</a>{% if role != 'developer' %}<form method="POST" action="/forget-account" onsubmit="return confirm('Delete account permanently?')"><button class="btn danger">Forget / Delete My Account</button></form>{% endif %}</div></body></html>
 """
 
 WALLET_HTML = """
@@ -1563,10 +1659,71 @@ def wallet():
         progress=progress
     )
 
+
+
+def get_subscription(username):
+    con = db()
+    cur = con.cursor()
+    cur.execute("SELECT * FROM subscriptions WHERE username=?", (username,))
+    sub = cur.fetchone()
+    con.close()
+    return sub
+
+@app.route("/subscription")
+@login_required
+def subscription():
+    sub = get_subscription(session.get("user"))
+    current_plan = "Free"
+    status = "Inactive"
+    end_date = ""
+    if sub:
+        current_plan = sub["plan"].title() if sub["plan"] else "Free"
+        status = sub["status"].title() if sub["status"] else "Inactive"
+        end_date = sub["end_date"] or ""
+    return render_template_string(
+        SUBSCRIPTION_HTML,
+        current_plan=current_plan,
+        status=status,
+        end_date=end_date
+    )
+
+@app.route("/subscribe", methods=["POST"])
+@login_required
+def subscribe():
+    plan = request.form.get("plan", "monthly")
+    plan_details = {
+        "monthly": {"days": 30, "amount": 99, "name": "monthly"},
+        "quarterly": {"days": 90, "amount": 249, "name": "3 monthly"},
+        "yearly": {"days": 365, "amount": 799, "name": "yearly"}
+    }
+    details = plan_details.get(plan, plan_details["monthly"])
+    start = date.today()
+    end = start + timedelta(days=details["days"])
+
+    con = db()
+    cur = con.cursor()
+    cur.execute("""
+        INSERT INTO subscriptions(username, plan, amount, start_date, end_date, status)
+        VALUES(?,?,?,?,?,?)
+        ON CONFLICT(username) DO UPDATE SET
+            plan=excluded.plan,
+            amount=excluded.amount,
+            start_date=excluded.start_date,
+            end_date=excluded.end_date,
+            status=excluded.status
+    """, (session.get("user"), details["name"], details["amount"], str(start), str(end), "active"))
+    con.commit()
+    con.close()
+    return redirect("/subscription")
+
 @app.route("/account")
 @login_required
 def account():
-    return render_template_string(ACCOUNT_HTML, user=session.get("user"), role=session.get("role"))
+    sub = get_subscription(session.get("user"))
+    plan = "Free"
+    if sub and sub["status"] == "active":
+        plan = sub["plan"].title()
+    return render_template_string(ACCOUNT_HTML, user=session.get("user"), role=session.get("role"), plan=plan)
 
 @app.route("/forget-account", methods=["POST"])
 @login_required
@@ -1579,6 +1736,7 @@ def forget_account():
     cur = con.cursor()
     cur.execute("DELETE FROM users WHERE username=? AND role='customer'", (username,))
     cur.execute("DELETE FROM user_stats WHERE username=?", (username,))
+    cur.execute("DELETE FROM subscriptions WHERE username=?", (username,))
     con.commit()
     con.close()
     session.clear()
