@@ -1,5 +1,6 @@
 import os
 import sqlite3
+import random
 import requests
 from functools import wraps
 from datetime import timedelta, date
@@ -133,29 +134,49 @@ body{
   linear-gradient(180deg,#171820,#050506 65%,#000);
   color:white;display:flex;align-items:center;justify-content:center;padding:20px;
 }
-.box{width:min(430px,100%);background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:32px;padding:30px;box-shadow:0 30px 90px rgba(0,0,0,.5)}
+.box{width:min(460px,100%);background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:32px;padding:30px;box-shadow:0 30px 90px rgba(0,0,0,.5)}
 .logo{font-size:28px;font-weight:900;margin-bottom:12px}.logo span{color:#ff2d55}
 h1{font-size:32px;margin-bottom:10px}
-p{color:#aaa;line-height:1.5;margin-bottom:22px}
+p{color:#aaa;line-height:1.5;margin-bottom:20px}
 label{display:block;color:#ccc;margin-bottom:8px;font-weight:700}
-input{width:100%;padding:16px 18px;border-radius:18px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.09);color:white;outline:none;font-size:16px}
-button{width:100%;border:0;border-radius:999px;background:#ff2d55;color:white;padding:15px;margin-top:18px;font-weight:900;font-size:16px;cursor:pointer}
+input{width:100%;padding:16px 18px;border-radius:18px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.09);color:white;outline:none;font-size:16px;margin-bottom:12px}
+button,.gmail{width:100%;border:0;border-radius:999px;background:#ff2d55;color:white;padding:15px;margin-top:10px;font-weight:900;font-size:16px;cursor:pointer;text-align:center;text-decoration:none;display:block}
+.gmail{background:white;color:#111}
 .err{color:#ff9aaa;margin-top:12px}
+.otpbox{background:rgba(255,255,255,.08);border:1px dashed rgba(255,255,255,.18);border-radius:18px;padding:12px;margin:14px 0;color:#ffcf70}
 .small{color:#888;font-size:13px;margin-top:16px}
+.divider{display:flex;align-items:center;gap:10px;margin:18px 0;color:#aaa}.divider:before,.divider:after{content:"";flex:1;height:1px;background:rgba(255,255,255,.12)}
 </style>
 </head>
 <body>
 <div class="box">
   <div class="logo">ASH<span>PLEX</span></div>
-  <h1>Login with Mobile</h1>
-  <p>Enter your mobile number. Your account will be saved in ASHPLEX database for future login.</p>
-  <form method="POST" action="/login">
+  <h1>Login to ASHPLEX</h1>
+  <p>Use mobile OTP or Gmail login. User data will be saved in ASHPLEX database.</p>
+
+  {% if step == "phone" %}
+  <form method="POST" action="/send-otp">
     <label>Mobile Number</label>
     <input name="phone" placeholder="Example: 9876543210" inputmode="numeric" maxlength="10" required>
-    <button>Continue</button>
+    <button>Send OTP</button>
   </form>
+
+  <div class="divider">OR</div>
+  <a class="gmail" href="/gmail-login">📧 Continue with Gmail</a>
+  {% endif %}
+
+  {% if step == "otp" %}
+  <form method="POST" action="/verify-otp">
+    <label>Enter OTP sent to {{phone}}</label>
+    <input name="otp" placeholder="Enter 6 digit OTP" inputmode="numeric" maxlength="6" required>
+    <button>Verify OTP</button>
+  </form>
+  <div class="otpbox">Demo OTP: <b>{{demo_otp}}</b><br>Real SMS OTP ke liye Firebase/Twilio config add karna hoga.</div>
+  <a class="gmail" href="/login">Change Number</a>
+  {% endif %}
+
   {% if error %}<div class="err">{{error}}</div>{% endif %}
-  <div class="small">Demo login: OTP is not required. Firebase OTP can be added in future.</div>
+  <div class="small">Note: Real OTP/Gmail OAuth needs Firebase or Google OAuth credentials. Current version shows teacher-demo flow.</div>
 </div>
 </body>
 </html>
@@ -1023,15 +1044,36 @@ def landing():
         return redirect("/home")
     return render_template_string(LANDING_HTML)
 
-@app.route("/login", methods=["GET", "POST"])
+@app.route("/login", methods=["GET"])
 def mobile_login():
-    if request.method == "GET":
-        return render_template_string(LOGIN_HTML, error=None)
+    return render_template_string(LOGIN_HTML, error=None, step="phone")
 
+@app.route("/send-otp", methods=["POST"])
+def send_otp():
     phone = request.form.get("phone", "").strip()
 
     if not phone.isdigit() or len(phone) != 10:
-        return render_template_string(LOGIN_HTML, error="Please enter a valid 10 digit mobile number.")
+        return render_template_string(LOGIN_HTML, error="Please enter a valid 10 digit mobile number.", step="phone")
+
+    otp = str(random.randint(100000, 999999))
+    session["pending_phone"] = phone
+    session["pending_otp"] = otp
+
+    # Demo: OTP screen par dikhega.
+    # Real SMS ke liye Firebase/Twilio API yaha integrate hoga.
+    return render_template_string(LOGIN_HTML, error=None, step="otp", phone=phone, demo_otp=otp)
+
+@app.route("/verify-otp", methods=["POST"])
+def verify_otp():
+    otp = request.form.get("otp", "").strip()
+    phone = session.get("pending_phone")
+    real_otp = session.get("pending_otp")
+
+    if not phone or not real_otp:
+        return redirect("/login")
+
+    if otp != real_otp:
+        return render_template_string(LOGIN_HTML, error="Wrong OTP. Please try again.", step="otp", phone=phone, demo_otp=real_otp)
 
     con = db()
     cur = con.cursor()
@@ -1042,10 +1084,9 @@ def mobile_login():
     if not user:
         cur.execute(
             "INSERT INTO users(username,password,role) VALUES(?,?,?)",
-            (phone, "mobile_login", "customer")
+            (phone, "otp_login", "customer")
         )
 
-    # Ensure stats row exists
     cur.execute(
         "INSERT OR IGNORE INTO user_stats(username,total_plays,today_plays,total_rewards,last_reward_date,last_play_date) VALUES(?,?,?,?,?,?)",
         (phone, 0, 0, 0, "", "")
@@ -1056,9 +1097,48 @@ def mobile_login():
 
     session["user"] = phone
     session["role"] = "customer"
+    session.pop("pending_phone", None)
+    session.pop("pending_otp", None)
     session.permanent = True
 
     return redirect("/home")
+
+@app.route("/gmail-login")
+def gmail_login():
+    # Demo Gmail login flow.
+    # Real Gmail OAuth ke liye Google Cloud OAuth Client ID/Secret add karna hoga.
+    gmail_user = "demo.gmail.user@gmail.com"
+
+    con = db()
+    cur = con.cursor()
+
+    cur.execute("SELECT * FROM users WHERE username=?", (gmail_user,))
+    user = cur.fetchone()
+
+    if not user:
+        cur.execute(
+            "INSERT INTO users(username,password,role) VALUES(?,?,?)",
+            (gmail_user, "gmail_login", "customer")
+        )
+
+    cur.execute(
+        "INSERT OR IGNORE INTO user_stats(username,total_plays,today_plays,total_rewards,last_reward_date,last_play_date) VALUES(?,?,?,?,?,?)",
+        (gmail_user, 0, 0, 0, "", "")
+    )
+
+    con.commit()
+    con.close()
+
+    session["user"] = gmail_user
+    session["role"] = "customer"
+    session.permanent = True
+
+    return redirect("/home")
+
+@app.route("/logout")
+def logout():
+    session.clear()
+    return redirect("/")
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
