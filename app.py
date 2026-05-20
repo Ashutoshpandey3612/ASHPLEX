@@ -655,83 +655,120 @@ APP_HTML = """
 body{min-height:100vh;background:#08080b;color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;overflow:hidden}
 .app{width:100vw;height:100vh;display:grid;grid-template-columns:250px 1fr;grid-template-rows:1fr 92px;background:#08080b}
 .sidebar{grid-row:1/2;background:rgba(18,18,23,.96);border-right:1px solid rgba(255,255,255,.08);padding:24px 18px}
-.brand{display:flex;align-items:center;gap:16px;margin-bottom:34px;padding:14px 10px;border-radius:24px;background:linear-gradient(135deg,rgba(255,255,255,.06),rgba(255,255,255,.02));border:1px solid rgba(255,255,255,.07);box-shadow:0 18px 45px rgba(0,0,0,.28)}
+/* Premium compact sidebar logo */
+.brand{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:14px;
+    margin:0 0 28px;
+    padding:28px 14px 24px;
+    border-radius:30px;
+    background:
+      radial-gradient(circle at 50% 0%, rgba(255,45,85,.20), transparent 44%),
+      linear-gradient(180deg, rgba(255,255,255,.075), rgba(255,255,255,.025));
+    border:1px solid rgba(255,255,255,.09);
+    box-shadow:0 22px 60px rgba(0,0,0,.38);
+    text-align:center;
+    overflow:hidden;
+    position:relative;
+}
+.brand:before{
+    content:"";
+    position:absolute;
+    inset:0;
+    background:linear-gradient(135deg, rgba(255,255,255,.08), transparent 45%);
+    pointer-events:none;
+}
 .premium-logo{
-width:95px;
-height:95px;
-min-width:95px;
-border-radius:30px;
-position:relative;
-overflow:hidden;
-display:flex;
-align-items:center;
-justify-content:center;
-background:
-linear-gradient(135deg,#ff2d55 0%,#ff0080 48%,#7c3aed 100%);
-box-shadow:
-0 20px 55px rgba(255,45,85,.45),
-inset 0 1px 0 rgba(255,255,255,.25);
+    width:110px;
+    height:110px;
+    min-width:110px;
+    border-radius:32px;
+    position:relative;
+    overflow:hidden;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:
+      radial-gradient(circle at 32% 18%, rgba(255,255,255,.35), transparent 22%),
+      linear-gradient(135deg,#ff2d55 0%,#ff0f7b 48%,#7c3aed 100%);
+    box-shadow:
+      0 22px 60px rgba(255,45,85,.45),
+      inset 0 1px 0 rgba(255,255,255,.30);
+    z-index:1;
 }
-
 .premium-logo:before{
-content:"";
-position:absolute;
-inset:10px;
-border-radius:22px;
-border:1px solid rgba(255,255,255,.16);
+    content:"";
+    position:absolute;
+    inset:10px;
+    border-radius:24px;
+    border:1px solid rgba(255,255,255,.18);
 }
-
 .premium-logo:after{
-content:"";
-position:absolute;
-width:180%;
-height:50px;
-background:rgba(255,255,255,.12);
-transform:rotate(-12deg);
-top:12px;
-left:-40%;
+    content:"";
+    position:absolute;
+    width:180%;
+    height:42px;
+    left:-40%;
+    bottom:12px;
+    transform:rotate(-12deg);
+    background:linear-gradient(90deg,transparent,rgba(255,255,255,.16),transparent);
 }
-
 .logo-glow{
-position:absolute;
-width:130px;
-height:130px;
-border-radius:50%;
-background:rgba(255,255,255,.12);
-filter:blur(35px);
+    position:absolute;
+    width:130px;
+    height:130px;
+    border-radius:50%;
+    background:rgba(255,255,255,.11);
+    filter:blur(34px);
 }
-
 .logo-headphone{
-position:relative;
-z-index:3;
-font-size:38px;
-filter:drop-shadow(0 6px 12px rgba(0,0,0,.35));
+    position:relative;
+    z-index:3;
+    font-size:44px;
+    filter:drop-shadow(0 7px 14px rgba(0,0,0,.38));
 }
-
 .logo-wave{
-position:absolute;
-display:flex;
-align-items:center;
-gap:4px;
-z-index:2;
+    position:absolute;
+    display:flex;
+    align-items:center;
+    gap:4px;
+    z-index:2;
+    opacity:.90;
 }
-
 .logo-wave span{
-width:4px;
-border-radius:999px;
-background:white;
-box-shadow:0 0 14px rgba(255,255,255,.55);
+    width:4px;
+    border-radius:999px;
+    background:white;
+    box-shadow:0 0 16px rgba(255,255,255,.58);
 }
-
 .logo-wave span:nth-child(1){height:12px}
-.logo-wave span:nth-child(2){height:22px}
-.logo-wave span:nth-child(3){height:36px}
-.logo-wave span:nth-child(4){height:22px}
+.logo-wave span:nth-child(2){height:24px}
+.logo-wave span:nth-child(3){height:38px}
+.logo-wave span:nth-child(4){height:24px}
 .logo-wave span:nth-child(5){height:12px}
-
-.brand-text h2{font-size:31px;line-height:1;font-weight:950;letter-spacing:-1px;text-shadow:0 8px 26px rgba(0,0,0,.35)}
-.brand-text h2 span{color:#ff2d55;text-shadow:0 0 22px rgba(255,45,85,.55)}
-.brand-text p{font-size:13px;line-height:1.35;color:#b7b7c6;margin-top:8px;font-weight:650;letter-spacing:.2px}
+.brand-text{position:relative;z-index:1;max-width:190px}
+.brand-text h2{
+    font-size:31px;
+    line-height:1;
+    font-weight:950;
+    letter-spacing:-1.2px;
+    margin:0 0 12px;
+    text-shadow:0 8px 26px rgba(0,0,0,.45);
+}
+.brand-text h2 span{
+    color:#ff2d55;
+    text-shadow:0 0 22px rgba(255,45,85,.60);
+}
+.brand-text p{
+    font-size:15px;
+    line-height:1.35;
+    color:#d2d2dc;
+    font-weight:700;
+    letter-spacing:.1px;
+}
 @media(max-width:850px){.brand{display:none}}
 .nav-title{color:#777785;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;margin:20px 10px 8px}
 .nav a{display:flex;align-items:center;gap:12px;padding:11px 12px;color:#c9c9d3;text-decoration:none;border-radius:12px;font-size:15px;margin:3px 0}.nav a:hover,.nav a.active{background:rgba(255,255,255,.08);color:white}
@@ -748,31 +785,18 @@ box-shadow:0 0 14px rgba(255,255,255,.55);
 </style>
 </head>
 <body>
+<div class="app">
+<aside class="sidebar">
 <div class="brand">
-
   <div class="premium-logo">
-
-      <div class="logo-glow"></div>
-
-      <div class="logo-headphone">🎧</div>
-
-      <div class="logo-wave">
-          <span></span>
-          <span></span>
-          <span></span>
-          <span></span>
-          <span></span>
-      </div>
-
+    <div class="logo-glow"></div>
+    <div class="logo-headphone">🎧</div>
+    <div class="logo-wave"><span></span><span></span><span></span><span></span><span></span></div>
   </div>
-
   <div class="brand-text">
-      <h2>ASH<span>PLEX</span></h2>
-      <p>Your Mood. Your Music. Your World.</p>
+    <h2>ASH<span>PLEX</span></h2>
+    <p>Your Mood.<br>Your Music.<br>Your World.</p>
   </div>
-
-</div>
-<div class="brand-text"><h2>ASH<span>PLEX</span></h2><p>Your Mood. Your Music. Your World.</p></div>
 </div>
 <nav class="nav">
 <div class="nav-title">Library</div>
