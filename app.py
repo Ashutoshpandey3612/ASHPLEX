@@ -4,7 +4,7 @@ import requests
 from functools import wraps
 from datetime import timedelta, date
 from urllib.parse import quote_plus
-from flask import Flask, render_template_string, request, redirect, session, jsonify
+from flask import Flask, jsonify, redirect, render_template_string, request, session, url_for
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "ashplex_secret")
@@ -65,6 +65,99 @@ def init_db():
     con.close()
 
 init_db()
+
+
+LANDING_HTML = """
+<!DOCTYPE html>
+<html>
+<head>
+<title>ASHPLEX</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif}
+body{
+  min-height:100vh;color:white;background:
+  radial-gradient(circle at 20% 0%,rgba(250,35,59,.35),transparent 32%),
+  radial-gradient(circle at 80% 10%,rgba(29,185,84,.28),transparent 35%),
+  linear-gradient(180deg,#171820,#050506 65%,#000);
+  display:flex;align-items:center;justify-content:center;padding:24px;
+}
+.wrap{max-width:980px;width:100%;display:grid;grid-template-columns:1.1fr .9fr;gap:28px;align-items:center}
+.card{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:34px;padding:34px;box-shadow:0 35px 100px rgba(0,0,0,.45)}
+.logo{font-size:28px;font-weight:900;margin-bottom:18px}.logo span{color:#ff2d55}
+h1{font-size:62px;line-height:.98;letter-spacing:-2px;margin-bottom:18px}
+p{color:#cfcfd8;font-size:17px;line-height:1.65}
+.actions{display:flex;gap:14px;margin-top:28px;flex-wrap:wrap}
+.btn{border:0;border-radius:999px;padding:15px 24px;font-weight:900;text-decoration:none;display:inline-block}
+.primary{background:#ff2d55;color:white}.secondary{background:rgba(255,255,255,.10);color:white}
+.phone-preview{min-height:430px;border-radius:36px;background:linear-gradient(135deg,#ff2d55,#1db954);padding:22px;display:flex;flex-direction:column;justify-content:space-between}
+.album{height:240px;border-radius:28px;background:rgba(0,0,0,.35);display:flex;align-items:center;justify-content:center;font-size:72px}
+.player{background:rgba(0,0,0,.35);border-radius:24px;padding:18px}
+@media(max-width:850px){.wrap{grid-template-columns:1fr}h1{font-size:42px}.phone-preview{min-height:310px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="card">
+    <div class="logo">ASH<span>PLEX</span></div>
+    <h1>Your Mood.<br>Your Music.<br>Your World.</h1>
+    <p>AI mood based music platform with playlist search, like/share, rewards, premium plan, and developer analytics.</p>
+    <div class="actions">
+      <a class="btn primary" href="/login">Continue with Mobile</a>
+      <a class="btn secondary" href="/preview">Preview App</a>
+    </div>
+  </div>
+  <div class="phone-preview">
+    <div class="album">🎧</div>
+    <div class="player">
+      <h2>ASHPLEX</h2>
+      <p>Search • Play • Like • Share</p>
+    </div>
+  </div>
+</div>
+</body>
+</html>
+"""
+
+LOGIN_HTML = """
+<!DOCTYPE html>
+<html>
+<head>
+<title>ASHPLEX Login</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif}
+body{
+  min-height:100vh;background:radial-gradient(circle at top,#2a1722,#050506 65%,#000);
+  color:white;display:flex;align-items:center;justify-content:center;padding:20px;
+}
+.box{width:min(430px,100%);background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:32px;padding:30px;box-shadow:0 30px 90px rgba(0,0,0,.5)}
+.logo{font-size:28px;font-weight:900;margin-bottom:12px}.logo span{color:#ff2d55}
+h1{font-size:32px;margin-bottom:10px}p{color:#aaa;line-height:1.5;margin-bottom:22px}
+label{display:block;color:#ccc;margin-bottom:8px;font-weight:700}
+input{width:100%;padding:16px 18px;border-radius:18px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.09);color:white;outline:none;font-size:16px}
+button{width:100%;border:0;border-radius:999px;background:#ff2d55;color:white;padding:15px;margin-top:18px;font-weight:900;font-size:16px;cursor:pointer}
+.err{color:#ff9aaa;margin-top:12px}
+.small{color:#888;font-size:13px;margin-top:16px}
+</style>
+</head>
+<body>
+<div class="box">
+  <div class="logo">ASH<span>PLEX</span></div>
+  <h1>Login with Mobile</h1>
+  <p>Enter your mobile number. Your account data will be saved in ASHPLEX database for future login.</p>
+  <form method="POST">
+    <label>Mobile Number</label>
+    <input name="phone" placeholder="Example: 9876543210" inputmode="numeric" maxlength="10" required>
+    <button>Continue</button>
+  </form>
+  {% if error %}<div class="err">{{error}}</div>{% endif %}
+  <div class="small">Demo login: OTP is not required. Firebase OTP can be added in future.</div>
+</div>
+</body>
+</html>
+"""
+
 
 def login_required(f):
     @wraps(f)
