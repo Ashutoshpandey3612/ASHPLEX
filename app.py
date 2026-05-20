@@ -140,7 +140,7 @@ p{color:#cfcfd8;font-size:17px;line-height:1.65}
   <div class="card">
     <div class="logo">ASH<span>PLEX</span></div>
     <h1>Your Mood.<br>Your Music.<br>Your World.</h1>
-    <p>AI mood based music platform with playlist search, like/share, rewards, premium plan, and developer analytics.</p>
+    <p>AI mood based music platform with latest trending songs, 90s classics, playlist search, like/share, rewards, premium plan, and developer analytics.</p>
     <div class="actions">
       <a class="btn primary" href="/home">Open ASHPLEX</a>
       <a class="btn secondary" href="/login">Login / Save Account</a>
@@ -244,45 +244,60 @@ def ai_mood_query(mood="trending", level="medium"):
     level = (level or "medium").lower()
 
     mood_map = {
+        "trending": {
+            "low": "latest hindi acoustic trending songs",
+            "medium": "latest hindi trending songs 2026 bollywood viral",
+            "high": "viral hindi dance songs 2026 trending reels"
+        },
+        "viral": {
+            "low": "viral hindi soft reels songs",
+            "medium": "viral hindi reels songs 2026",
+            "high": "instagram viral hindi dance songs"
+        },
+        "new": {
+            "low": "new hindi soft songs 2026",
+            "medium": "new hindi songs 2026 bollywood",
+            "high": "latest bollywood party songs 2026"
+        },
+        "classic90s": {
+            "low": "90s hindi soft songs",
+            "medium": "90s hindi bollywood hit songs Kumar Sanu Udit Narayan Alka Yagnik",
+            "high": "90s bollywood dance hits Udit Narayan Alka Yagnik"
+        },
         "happy": {
-            "low": "happy acoustic chill",
-            "medium": "happy bollywood hits",
-            "high": "party dance energetic"
+            "low": "happy acoustic hindi songs",
+            "medium": "happy bollywood hits latest",
+            "high": "party dance energetic hindi songs"
         },
         "sad": {
-            "low": "soft sad acoustic",
-            "medium": "sad hindi songs",
-            "high": "heartbreak emotional songs"
+            "low": "soft sad hindi songs",
+            "medium": "sad hindi songs Arijit Singh emotional",
+            "high": "heartbreak emotional bollywood songs"
         },
         "romantic": {
-            "low": "soft romantic",
-            "medium": "romantic bollywood",
-            "high": "love songs passionate"
+            "low": "soft romantic hindi songs",
+            "medium": "romantic bollywood latest songs",
+            "high": "love songs passionate bollywood"
         },
         "focus": {
-            "low": "calm piano focus",
-            "medium": "lofi focus beats",
-            "high": "deep focus electronic"
+            "low": "calm piano focus hindi",
+            "medium": "lofi hindi focus beats",
+            "high": "deep focus instrumental hindi"
         },
         "relax": {
-            "low": "meditation calm music",
-            "medium": "relaxing chill songs",
-            "high": "chill house lounge"
+            "low": "meditation calm hindi music",
+            "medium": "relaxing chill hindi songs",
+            "high": "chill lounge hindi music"
         },
         "workout": {
-            "low": "warmup workout songs",
-            "medium": "gym workout music",
-            "high": "high energy workout"
+            "low": "warmup workout hindi songs",
+            "medium": "gym workout bollywood songs",
+            "high": "high energy bollywood workout"
         },
         "angry": {
-            "low": "dark chill music",
-            "medium": "rock intense songs",
-            "high": "aggressive workout music"
-        },
-        "trending": {
-            "low": "acoustic hits",
-            "medium": "arijit",
-            "high": "trending dance hits"
+            "low": "dark chill hindi music",
+            "medium": "rock intense bollywood songs",
+            "high": "aggressive workout bollywood music"
         }
     }
 
@@ -593,7 +608,7 @@ body{min-height:100vh;background:#08080b;color:var(--text);font-family:-apple-sy
 <div>
 <div class="eyebrow">ASHPLEX Hybrid Music</div>
 <h1>Your Mood.<br>Your Music.</h1>
-<p>Deezer API gives fast preview and metadata. YouTube gives full-song discovery.</p>
+<p>Trending Now shows latest songs; 90s Classics shows old evergreen songs. Deezer API gives preview and YouTube gives full-song discovery.</p>
 <a class="btn" href="/home">Play Mix</a>
 <a class="btn secondary" href="/youtube?q={{query}}">YouTube Full Mode</a>
 </div>
@@ -602,7 +617,10 @@ body{min-height:100vh;background:#08080b;color:var(--text);font-family:-apple-sy
 <div class="mood-ai-box">
 <div class="mood-ai-head"><h3>🤖 AI Mood Level Recommendation
 <div class="teacher-demo" style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap">
-  <a class="chip" href="/mood?mood=trending">🔥 Trending</a>
+  <a class="chip" href="/mood?mood=trending">🔥 Trending Now</a>
+  <a class="chip" href="/mood?mood=viral">📈 Viral Reels</a>
+  <a class="chip" href="/mood?mood=new">🆕 New Hindi</a>
+  <a class="chip" href="/mood?mood=classic90s">🎧 90s Classics</a>
   <a class="chip" href="/mood?mood=happy">😊 Happy</a>
   <a class="chip" href="/mood?mood=sad">💔 Sad</a>
   <a class="chip" href="/mood?mood=romantic">❤️ Romantic</a>
@@ -617,7 +635,7 @@ body{min-height:100vh;background:#08080b;color:var(--text);font-family:-apple-sy
 <div>
 <label>Select Mood</label>
 <select name="mood" onchange="openMoodPlaylist(this)">
-<option value="trending">Trending</option><option value="happy">Happy</option><option value="sad">Sad</option><option value="romantic">Romantic</option><option value="focus">Focus</option><option value="relax">Relax</option><option value="workout">Workout</option><option value="angry">Angry</option>
+<option value="trending">Trending Now - Latest Songs</option><option value="viral">Viral Reels Songs</option><option value="new">New Hindi Songs</option><option value="classic90s">90s Classics</option><option value="happy">Happy</option><option value="sad">Sad</option><option value="romantic">Romantic</option><option value="focus">Focus</option><option value="relax">Relax</option><option value="workout">Workout</option><option value="angry">Angry</option>
 </select>
 </div>
 <div>
@@ -634,6 +652,18 @@ body{min-height:100vh;background:#08080b;color:var(--text);font-family:-apple-sy
 <h3>🌐 Hybrid Full Song Source</h3>
 <p style="color:#aaa;margin:8px 0 12px">Preview on ASHPLEX via Deezer. Full song option opens YouTube search/player.</p>
 <a class="source-badge" href="/youtube?q={{query}}">Open YouTube Full Song Mode</a>
+</div>
+
+
+<div class="hybrid-box">
+<h3>🔥 Teacher Demo Sections</h3>
+<p style="color:#aaa;margin:8px 0 12px">Use these to prove ASHPLEX supports latest trending songs and 90s classics separately.</p>
+<div style="display:flex;gap:10px;flex-wrap:wrap">
+  <a class="source-badge" href="/mood?mood=trending">🔥 Trending Now</a>
+  <a class="source-badge" href="/mood?mood=viral">📈 Viral Reels</a>
+  <a class="source-badge" href="/mood?mood=new">🆕 New Hindi</a>
+  <a class="source-badge" href="/mood?mood=classic90s">🎧 90s Classics</a>
+</div>
 </div>
 
 <div class="section-row"><h2>Made For You</h2><span>{{songs|length}} Deezer preview tracks · {{query}}</span></div>
@@ -911,7 +941,7 @@ h1{font-size:36px}.muted{color:#aaa;margin-top:6px}
   <div class="header">
     <div>
       <h1>🎵 ASHPLEX Playlist</h1>
-      <p class="muted">Search result playlist for: <b>{{q}}</b></p><p class="muted">Teacher demo: select any mood, then click a song card to play it inside ASHPLEX.</p>
+      <p class="muted">Search result playlist for: <b>{{q}}</b></p><p class="muted">Teacher demo: Trending Now = latest songs, 90s Classics = old songs, Mood AI = mood-based playlist.</p>
     </div>
     <form class="search" action="/playlist">
       <input name="q" value="{{q}}" placeholder="Search artist or song...">
@@ -1027,14 +1057,17 @@ h1{margin:0 0 10px}.big{font-size:48px;color:#ff8a98;font-weight:800}.muted{colo
 
 
 MOOD_PLAYLIST_QUERIES = {
-    "trending": "90s hindi bollywood hit songs Kumar Sanu Udit Narayan Alka Yagnik",
-    "happy": "90s hindi happy songs Udit Narayan Abhijeet Alka Yagnik",
-    "sad": "90s hindi sad songs Kumar Sanu Sonu Nigam Anuradha Paudwal",
-    "romantic": "90s hindi romantic songs Kumar Sanu Alka Yagnik Udit Narayan",
-    "focus": "old hindi lofi relaxing instrumental songs",
-    "relax": "90s hindi soft relaxing songs Anuradha Paudwal Sadhana Sargam",
-    "workout": "90s bollywood dance workout songs Udit Narayan Alka Yagnik",
-    "angry": "bollywood energetic attitude songs 90s"
+    "trending": "latest hindi trending songs 2026 bollywood viral reels Arijit Singh Shreya Ghoshal",
+    "viral": "viral hindi reels songs 2026 bollywood trending instagram songs",
+    "new": "new hindi songs 2026 bollywood latest hits",
+    "classic90s": "90s hindi bollywood hit songs Kumar Sanu Udit Narayan Alka Yagnik",
+    "happy": "latest hindi happy songs bollywood upbeat hits",
+    "sad": "latest hindi sad songs Arijit Singh emotional bollywood",
+    "romantic": "latest hindi romantic songs Arijit Singh bollywood love songs",
+    "focus": "lofi hindi focus songs relaxing study music",
+    "relax": "relaxing hindi songs chill bollywood soft music",
+    "workout": "bollywood workout songs high energy dance hits",
+    "angry": "bollywood energetic attitude songs high bass"
 }
 
 def mood_to_query(mood):
