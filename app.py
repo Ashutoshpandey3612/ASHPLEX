@@ -610,54 +610,6 @@ def update_user_activity(username):
         "target_achieved": today_plays >= 20
     }
 
-LOGIN_HTML = """
-<!DOCTYPE html>
-<html>
-<head>
-<title>ASHPLEX Login</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<style>
-*{box-sizing:border-box}
-body{margin:0;min-height:100vh;background:radial-gradient(circle at top,#3a1d2f,#08080b 48%,#000);color:white;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;display:flex;align-items:center;justify-content:center}
-.card{width:370px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:28px;padding:34px;text-align:center;box-shadow:0 30px 90px rgba(0,0,0,.45)}
-h1{font-size:36px;margin:0 0 4px}.tag{color:#b8b8c6;font-size:13px;margin-bottom:24px}
-input{width:100%;padding:14px;margin:8px 0;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.08);border-radius:16px;color:white}
-button{width:100%;padding:14px;margin-top:12px;border:0;background:#fa233b;color:white;border-radius:18px;font-weight:800;cursor:pointer}
-a{color:#ff8a98}.small{font-size:12px;color:#aaa;margin-top:14px;line-height:1.6}
-.chip{background:rgba(255,255,255,.08);color:white;text-decoration:none;border:1px solid rgba(255,255,255,.12);padding:9px 13px;border-radius:999px;font-weight:800}.chip:hover{background:#fa233b}
-</style>
-</head>
-<body>
-<div class="card">
-<h1>🎧 ASHPLEX</h1>
-<div class="tag">Your Mood. Your Music. Your World.</div>
-<form method="POST" action="/login">
-<input name="user" placeholder="Username" required>
-<input name="password" type="password" placeholder="Password" required>
-<label style="display:flex;gap:8px;align-items:center;justify-content:center;color:#aaa;font-size:13px;margin-top:8px">
-<input type="checkbox" name="remember" checked style="width:auto;margin:0"> Remember me
-</label>
-<button>Login</button>
-</form>
-<div class="small">
-Developer: ashutosh / Ashplex@123<br>
-New customer? <a href="/register">Create account</a>
-</div>
-</div>
-
-<script>
-function openMoodPlaylist(selectEl){
-  const mood = selectEl.value;
-  if(mood){
-    window.location.href = "/mood?mood=" + encodeURIComponent(mood);
-  }
-}
-</script>
-
-</body>
-</html>
-"""
-
 REGISTER_HTML = """
 <!DOCTYPE html>
 <html>
@@ -683,7 +635,7 @@ a{color:#ff8a98}.small{font-size:12px;color:#aaa;margin-top:14px}
 <input name="password" type="password" placeholder="Create password" required>
 <button>Create Account</button>
 </form>
-<div class="small">Already have account? <a href="/">Login</a></div>
+<div class="small">Already have account? <a href="/login">Login</a></div>
 </div>
 </body>
 </html>
@@ -1349,7 +1301,7 @@ def verify_otp():
 
 @app.route("/gmail-login")
 def gmail_login():
-    # Demo Gmail login. Real Gmail OAuth ke liye Google Cloud OAuth credentials chahiye.
+    # Demo Gmail login button. Real Google OAuth ke liye Google Cloud OAuth credentials chahiye.
     gmail_user = "demo.gmail.user@gmail.com"
 
     con = db()
