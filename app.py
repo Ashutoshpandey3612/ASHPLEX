@@ -795,18 +795,16 @@ body{min-height:100vh;background:#08080b;color:var(--text);font-family:-apple-sy
 </div>
 
 
-<div class="hybrid-box">
-<h3>🔥 Teacher Demo Sections</h3>
-<p style="color:#aaa;margin:8px 0 12px">Trending uses short Deezer-friendly searches first, so real album covers load before backup mode.</p>
-<div style="display:flex;gap:10px;flex-wrap:wrap">
-  <a class="source-badge" href="/mood?mood=trending">🔥 Trending Now</a>
-  <a class="source-badge" href="/mood?mood=viral">📈 Viral Reels</a>
-  <a class="source-badge" href="/mood?mood=new">🆕 New Hindi</a>
-  <a class="source-badge" href="/mood?mood=classic90s">🎧 90s Classics</a>
-</div>
+
+
+
+
+<div class="hero-banner">
+  <h1>ASHPLEX</h1>
+  <h2>Your Mood. Your Music. Your World.</h2>
+  <p>AI-powered music experience with trending hits, 90s classics, mood-based recommendations, and smart playlist discovery.</p>
 </div>
 
-<div class="hybrid-box"><h3>✅ Real cover mode</h3><p style="color:#aaa;margin-top:8px">ASHPLEX now searches short artist/song keywords on Deezer first, so real album covers appear. Backup mode runs only if API/network fails.</p></div>
 <div class="section-row"><h2>Made For You</h2><span>{{songs|length}} real cover tracks · {{query}}</span></div>
 
 <div class="grid">
