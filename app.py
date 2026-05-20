@@ -374,7 +374,7 @@ def get_youtube_video(query="arijit song"):
             "key": YOUTUBE_API_KEY
         }
 
-        data = requests.get(url, params=params, timeout=3).json()
+        data = requests.get(url, params=params, timeout=10).json()
 
         items = data.get("items", [])
         if not items:
@@ -502,10 +502,10 @@ def get_deezer_songs(query="arijit"):
     if not parts:
         parts = ["arijit singh"]
 
-    for part in parts[:2]:
+    for part in parts[:5]:
         try:
             url = f"https://api.deezer.com/search?q={quote_plus(part)}"
-            data = requests.get(url, timeout=2).json()
+            data = requests.get(url, timeout=8).json()
 
             for s in data.get("data", [])[:8]:
                 title = s.get("title", "Unknown")
@@ -535,10 +535,10 @@ def get_deezer_songs(query="arijit"):
                     "source": "Deezer Real Cover + YouTube"
                 })
 
-                if len(all_songs) >= 12:
+                if len(all_songs) >= 18:
                     break
 
-            if len(all_songs) >= 12:
+            if len(all_songs) >= 18:
                 break
 
         except Exception:
@@ -653,82 +653,97 @@ APP_HTML = """
 *{box-sizing:border-box;margin:0;padding:0}
 :root{--bg:#08080b;--text:#f5f5f7;--muted:#9898a6;--red:#fa233b;--red2:#ff5a6d}
 body{min-height:100vh;background:#08080b;color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;overflow:hidden}
-.app{width:100vw;height:100vh;display:grid;grid-template-columns:250px 1fr;grid-template-rows:1fr 92px;background:#08080b}
-.sidebar{grid-row:1/2;background:rgba(18,18,23,.96);border-right:1px solid rgba(255,255,255,.08);padding:24px 18px}
-..brand{
-display:flex;
-align-items:center;
-gap:22px;
-
-```
-width:fit-content;
-max-width:100%;
-
-padding:18px 26px 18px 18px;
-margin-bottom:34px;
-
-border-radius:34px;
-
-background:
-linear-gradient(135deg,
-rgba(255,255,255,.08),
-rgba(255,255,255,.03));
-
-border:1px solid rgba(255,255,255,.08);
-
-box-shadow:
-0 20px 55px rgba(0,0,0,.35);
-
-overflow:hidden;
-```
-
+.app{width:100vw;height:100vh;display:grid;grid-template-columns:360px 1fr;grid-template-rows:1fr 92px;background:#08080b}
+.sidebar{
+  grid-row:1/2;
+  background:linear-gradient(180deg,rgba(15,15,23,.98),rgba(5,5,9,.98));
+  border-right:1px solid rgba(255,45,85,.18);
+  padding:24px 22px;
+  box-shadow:18px 0 60px rgba(0,0,0,.35);
+  overflow:hidden;
 }
-
-.brand-text{
-flex:1;
-min-width:0;
+.brand-card{
+  width:100%;
+  display:flex;
+  align-items:center;
+  gap:18px;
+  padding:18px;
+  margin-bottom:32px;
+  border-radius:30px;
+  background:
+    radial-gradient(circle at 20% 15%,rgba(255,45,85,.24),transparent 34%),
+    linear-gradient(135deg,rgba(255,255,255,.08),rgba(255,255,255,.025));
+  border:1px solid rgba(255,45,85,.22);
+  box-shadow:0 24px 65px rgba(255,45,85,.10), inset 0 1px 0 rgba(255,255,255,.08);
 }
-
-.brand-text h2{
-font-size:58px;
-line-height:1;
-font-weight:950;
-letter-spacing:-2px;
-margin-bottom:12px;
-white-space:nowrap;
+.brand-logo{
+  width:96px;
+  height:96px;
+  min-width:96px;
+  border-radius:28px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:44px;
+  position:relative;
+  overflow:hidden;
+  background:linear-gradient(135deg,#ff2d55 0%,#ff0f7b 48%,#8b5cf6 100%);
+  box-shadow:0 20px 50px rgba(255,45,85,.36), inset 0 1px 0 rgba(255,255,255,.28);
 }
-
-.brand-text h2 span{
-color:#ff2d55;
-text-shadow:0 0 18px rgba(255,45,85,.55);
+.brand-logo:before{
+  content:"";
+  position:absolute;
+  inset:10px;
+  border-radius:22px;
+  border:1px solid rgba(255,255,255,.18);
 }
-
-.brand-text p{
-font-size:19px;
-color:#b8b8c6;
-line-height:1.35;
-font-weight:650;
-max-width:320px;
+.brand-logo:after{
+  content:"";
+  position:absolute;
+  width:170%;
+  height:44px;
+  left:-40%;
+  top:15px;
+  transform:rotate(-15deg);
+  background:rgba(255,255,255,.14);
 }
-
-@media(max-width:850px){
-
-.brand{
-width:100%;
-gap:14px;
-padding:14px;
+.brand-logo span{
+  position:relative;
+  z-index:2;
+  filter:drop-shadow(0 8px 14px rgba(0,0,0,.35));
 }
-
-.brand-text h2{
-font-size:34px;
+.brand-info{
+  min-width:0;
+  flex:1;
 }
-
-.brand-text p{
-font-size:14px;
+.brand-info h1{
+  font-size:42px;
+  line-height:1;
+  font-weight:950;
+  letter-spacing:-2px;
+  white-space:nowrap;
+  margin:0 0 10px;
+  text-shadow:0 10px 28px rgba(0,0,0,.35);
 }
-
+.brand-info h1 span{
+  color:#ff2d55;
+  text-shadow:0 0 22px rgba(255,45,85,.65);
 }
-
+.brand-line{
+  width:72px;
+  height:3px;
+  border-radius:999px;
+  background:linear-gradient(90deg,#ff2d55,transparent);
+  margin-bottom:12px;
+}
+.brand-info p{
+  color:#c9c9d4;
+  font-size:14px;
+  line-height:1.35;
+  font-weight:650;
+  max-width:205px;
+}
+@media(max-width:850px){.brand-card{display:none}}
 .nav-title{color:#777785;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;margin:20px 10px 8px}
 .nav a{display:flex;align-items:center;gap:12px;padding:11px 12px;color:#c9c9d3;text-decoration:none;border-radius:12px;font-size:15px;margin:3px 0}.nav a:hover,.nav a.active{background:rgba(255,255,255,.08);color:white}
 .main{overflow-y:auto;padding:26px 34px 120px;background:radial-gradient(circle at 75% -10%, rgba(250,35,59,.20), transparent 32%),linear-gradient(180deg,#181820,#09090d 45%,#000)}
@@ -746,12 +761,13 @@ font-size:14px;
 <body>
 <div class="app">
 <aside class="sidebar">
-<div class="brand">
-<div class="brand-icon">
-  <div class="brand-wave"><i></i><i></i><i></i><i></i><i></i></div>
-  <div class="brand-headphone">🎧</div>
-</div>
-<div class="brand-text"><h2>ASH<span>PLEX</span></h2><p>Your Mood. Your Music. Your World.</p></div>
+<div class="brand-card">
+  <div class="brand-logo"><span>🎧</span></div>
+  <div class="brand-info">
+    <h1>ASH<span>PLEX</span></h1>
+    <div class="brand-line"></div>
+    <p>Your Mood. Your Music. Your World.</p>
+  </div>
 </div>
 <nav class="nav">
 <div class="nav-title">Library</div>
@@ -1279,7 +1295,7 @@ def get_youtube_playlist(query="arijit songs", max_results=12):
             "safeSearch": "none",
             "key": YOUTUBE_API_KEY
         }
-        data = requests.get(url, params=params, timeout=3).json()
+        data = requests.get(url, params=params, timeout=10).json()
         items = data.get("items", [])
 
         results = []
@@ -1454,16 +1470,7 @@ def home():
     if not query:
         query = ai_mood_query(mood, level)
 
-    # Render 502 fix: external music APIs can be slow/unavailable.
-    # Never let /home crash or wait too long after login.
-    try:
-        songs = get_deezer_songs(query)
-    except Exception as e:
-        print("HOME_SONG_LOAD_ERROR:", e, flush=True)
-        songs = fallback_songs_for_query(query)
-
-    if not songs:
-        songs = fallback_songs_for_query(query)
+    songs = get_deezer_songs(query)
 
     return render_template_string(
         APP_HTML,
@@ -1620,15 +1627,6 @@ def api_user_stats():
         "total_rewards": stat["total_rewards"],
         "target": 20
     })
-
-@app.errorhandler(500)
-def internal_error(error):
-    print("FLASK_500_ERROR:", error, flush=True)
-    return "ASHPLEX server error. Please check Render logs.", 500
-
-@app.errorhandler(502)
-def bad_gateway(error):
-    return "ASHPLEX gateway issue. Please redeploy or check Render logs.", 502
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 8000)))
